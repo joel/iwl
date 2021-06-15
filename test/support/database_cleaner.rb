@@ -4,10 +4,8 @@
 
 DatabaseCleaner.strategy = :transaction
 
-module Minitest
-  class Spec
-    around do |tests|
-      DatabaseCleaner.cleaning(&tests)
-    end
+class Minitest::Spec # rubocop:disable Style/ClassAndModuleChildren
+  around do |tests|
+    DatabaseCleaner.cleaning(&tests)
   end
 end

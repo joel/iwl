@@ -9,7 +9,7 @@ function cmd() {
   array+=("--name ${SERVICE_NAME}-db")
   array+=("--env MYSQL_ROOT_PASSWORD=mysql_password")
   array+=("--env MYSQL_PASSWORD=mysql_password")
-  array+=("--env MYSQL_USER=mysql_user")
+  array+=("--env MYSQL_USER=root")
   array+=("--mount source=${SERVICE_NAME}-db-data,target=/var/lib/mysql")
   array+=("--mount type=bind,source=$PWD/dumps,target=/dumps")
   array+=("--network ${SERVICE_NAME}-bridge-docker-network")

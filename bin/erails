@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 
-DB_PORT=3333
-REDIS_URL=redis://localhost:6666/1
+export HOST_URL=127.0.0.1
+export DB_PUBLISHED_PORT=3333
+export REDIS_PUBLISHED_PORT=6666
+export DB_POOL=5
+export DB_USER=root
+export DB_PASSWORD=mysql_password
+export DB_HOST=${HOST_URL}
+export DB_PORT=${DB_PUBLISHED_PORT}
+
+export DATABASE_URL=mysql2://${DB_USER}:${DB_PASSWORD}@${HOST_URL}:${DB_PORT}/iwl_development
+export REDIS_URL=redis://${HOST_URL}:6666/1
 
 ruby bin/rails "$@"

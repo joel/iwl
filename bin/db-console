@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+docker container ls | grep ${SERVICE_NAME}-db 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "DB Stop!"
+else
+  echo "Opening DB Console"
+  docker exec -it ${SERVICE_NAME}-db bash
+fi
+
+
+

@@ -1,22 +1,37 @@
 #!/usr/bin/env bash
 
-./bin/init-env
+source ./bin/init-env
 
 if [ $# -eq 0 ]
   then
-    echo "need to provide the target platform"
-    echo "e.g: ./show-logs dev"
-    exit 1
+    echo "Showing dev server logs"
+    echo "You can check logs of either production or development"
+    echo "e.g bin/show-logs dev"
+    echo "e.g bin/show-logs prod"
 fi
 
-possible_values=("prod" "dev")
+if [ $# -eq 1 ]
+  then
+  if [ $1 == "--help" ]
+    then
+      echo "Show server logs"
+      echo "You can check logs of either production or development"
+      echo "e.g bin/show-logs dev"
+      echo "e.g bin/show-logs prod"
+      exit 1
+  fi
+fi
 
-if [[ ! " $1 " =~ " ${target} " ]]; then
+PF_TARGET="${1:-dev}"
+
+POSSIBLE_VALUES=("prod" "dev")
+
+if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
   echo "target should be either: prod or dev"
   exit 1
 fi
 
-case "$1" in
+case "${PF_TARGET}" in
   'prod')
     docker logs --follow ${SERVICE_NAME}-prod-app;;
   'dev')

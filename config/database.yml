@@ -12,21 +12,22 @@
 default: &default
   adapter: mysql2
   encoding: utf8
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: root
-  password:
-  host: localhost
+  pool: <%= ENV.fetch("DB_POOL") { 5 } %>
+  username: <%= ENV.fetch("DB_USER") { mysql_user } %>
+  password: <%= ENV.fetch("DB_PASSWORD") { mysql_password } %>
+  host: <%= ENV.fetch("DB_HOST") { localhost } %>
+  port: <%= ENV.fetch("DB_PORT") { 3306 } %>
 
 development:
   <<: *default
-  database: images_furry_development
+  database: iwl_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: images_furry_test
+  database: iwl_test
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -49,6 +50,4 @@ test:
 #
 production:
   <<: *default
-  database: images_furry_production
-  username: images_furry
-  password: <%= ENV['IMAGES_FURRY_DATABASE_PASSWORD'] %>
+  database: iwl_production

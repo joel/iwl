@@ -1,0 +1,69 @@
+ARG ARG_RUBY_VERSION
+
+FROM ruby:${ARG_RUBY_VERSION}-alpine3.13
+
+RUN apk add --no-cache --update \
+    # Nokogori compilation
+    build-base ruby-dev \
+    # Foreign Function Interface extension for Ruby.
+    libffi-dev \
+    nodejs \
+    # Needed by node-gyp for node-sass
+    python2 \
+    yarn \
+    tzdata \
+    postgresql-dev=~13 \
+    # Rails SQL schema format requires `pg_dump(1)` and `psql(1)`
+    postgresql=~13 \
+    # Install same version of pg_dump
+    postgresql-client=~13 \
+    zlib-dev \
+    # XML C parser
+    libxml2-dev \
+    # XSLT C library
+    libxslt-dev \
+    readline-dev \
+    bash \
+    #
+    # For testing
+    # chromium chromium-chromedriver python3 python3-dev py3-pip \
+    chromium-chromedriver chromium harfbuzz nss \
+    #
+    # Nice-to-haves
+    git vim \
+    curl \
+    #
+    # Fixes watch file issues with things like HMR
+    libnotify-dev && \
+    rm -rf /var/cache/apk/*
+
+ARG ARG_GEM_HOME=/bundle
+ENV GEM_HOME ${ARG_GEM_HOME}
+
+ENV BUNDLE_PATH ${ARG_GEM_HOME}
+ENV BUNDLE_WITHOUT production
+ENV BUNDLE_CACHE_ALL true
+ENV BUNDLE_JOBS 4
+ENV BUNDLE_RETRY 3
+ENV BUNDLE_PATH ${GEM_HOME}
+ENV BUNDLE_BIN ${GEM_HOME}/bin
+ENV BUNDLE_APP_CONFIG ${GEM_HOME}
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
+ARG ARG_BUNDLER_VERSION=2.2.16
+RUN gem update --system && \
+    gem install bundler:${ARG_BUNDLER_VERSION}
+
+ENV APP_ROOT /app
+RUN mkdir ${APP_ROOT}
+
+ENV PATH ${APP_ROOT}/bin:${BUNDLE_BIN}:${GEM_HOME}/gems/bin:${PATH}
+WORKDIR ${APP_ROOT}
+
+ENV RAILS_ENV development
+ENV RACK_ENV development
+
+ARG ARG_COMPOSE_WAIT_VER=2.9.0
+RUN curl -SL https://github.com/ufoscout/docker-compose-wait/releases/download/${ARG_COMPOSE_WAIT_VER}/wait -o /wait
+RUN chmod +x /wait

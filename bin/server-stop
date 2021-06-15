@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+if [[ -n $1 && $1 == 'production' ]]
+then
+  echo '==============================================='
+  echo '=========== STOP PRODUCTION SERVER ============'
+  echo '==============================================='
+
+  docker container stop ${SERVICE_NAME}-prod-app
+
+else
+	echo "Stop development server"
+
+  docker container stop ${SERVICE_NAME}-dev-app
+fi

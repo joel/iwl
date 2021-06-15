@@ -1,0 +1,89 @@
+ARG ARG_RUBY_VERSION
+
+FROM ruby:${ARG_RUBY_VERSION}-alpine3.13 AS intermediate
+
+RUN apk add --no-cache --update \
+    # Nokogori compilation
+    build-base ruby-dev \
+    # Foreign Function Interface extension for Ruby.
+    libffi-dev \
+    nodejs \
+    # Needed by node-gyp for node-sass
+    python2 \
+    yarn \
+    tzdata \
+    postgresql-dev=~13 \
+    # Rails SQL schema format requires `pg_dump(1)` and `psql(1)`
+    postgresql=~13 \
+    # Install same version of pg_dump
+    postgresql-client=~13 \
+    zlib-dev \
+    # XML C parser
+    libxml2-dev \
+    # XSLT C library
+    libxslt-dev \
+    readline-dev \
+    bash \
+    #
+    # For testing
+    # chromium chromium-chromedriver python3 python3-dev py3-pip \
+    chromium-chromedriver chromium harfbuzz nss \
+    #
+    # Nice-to-haves
+    git vim \
+    #
+    # Fixes watch file issues with things like HMR
+    libnotify-dev
+
+ENV BUNDLER_VERSION 2.2.16
+ENV BUNDLE_PATH /bundle
+ENV GEM_HOME /bundle
+ENV BUNDLE_JOBS 20
+ENV BUNDLE_RETRY 5
+ENV BUNDLE_WITHOUT production
+ENV BUNDLE_CACHE_ALL true
+ENV RAILS_ENV development
+ENV RACK_ENV development
+ENV APP_PATH /src
+
+WORKDIR $APP_PATH
+
+COPY Gemfile $APP_PATH
+COPY Gemfile.lock $APP_PATH
+
+RUN gem install bundler -v $BUNDLER_VERSION
+
+RUN bundle install
+
+# Second Image
+FROM ruby:3.0.0-alpine3.13
+
+RUN apk add --no-cache --update \
+    nodejs \
+    yarn \
+    tzdata \
+    postgresql=~13
+
+ENV BUNDLER_VERSION 2.2.16
+ENV BUNDLE_PATH /bundle
+ENV GEM_HOME /bundle
+ENV BUNDLE_JOBS 20
+ENV BUNDLE_RETRY 5
+ENV BUNDLE_WITHOUT production
+ENV BUNDLE_CACHE_ALL true
+ENV RAILS_ENV development
+ENV RACK_ENV development
+ENV APP_PATH /work
+
+WORKDIR $APP_PATH
+
+COPY --from=intermediate /bundle /bundle
+
+COPY Gemfile $APP_PATH
+COPY Gemfile.lock $APP_PATH
+
+COPY . .
+
+RUN bundle install
+
+RUN RAILS_ENV=test bin/rake assets:precompile

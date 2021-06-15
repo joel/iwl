@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+# --publish 6379:6379 \
+
+docker container ls | grep ${SERVICE_NAME}-redis 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Starting Redis... "
+  docker run --rm --detach \
+  --name ${SERVICE_NAME}-redis \
+  --mount source=${SERVICE_NAME}-redis-data,target=/var/lib/redis/data \
+  --network ${SERVICE_NAME}-bridge-docker-network \
+  redis:latest > /dev/null 2>&1
+else
+  echo "Redis Started!"
+fi

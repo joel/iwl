@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+docker container ls | grep ${SERVICE_NAME}-db 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "DB Stop!"
+  docker container rm ${SERVICE_NAME}-db > /dev/null 2>&1
+else
+  echo "Stopping DB..."
+  docker container stop ${SERVICE_NAME}-db 1> /dev/null
+fi
+
+
+

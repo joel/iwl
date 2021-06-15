@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+docker network ls | grep ${SERVICE_NAME}-bridge-docker-network 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Create Network"
+  docker network create ${SERVICE_NAME}-bridge-docker-network 1> /dev/null
+else
+  echo "Network Already Exists"
+fi
+
+volumes=(
+  ${SERVICE_NAME}-db-data
+  ${SERVICE_NAME}-redis-data
+  ${SERVICE_NAME}-dev-bundle-volume
+)
+
+for volume in "${volumes[@]}"
+do
+  docker volume ls | grep ${volume} 1> /dev/null
+  if [[ $? = 1 ]]; then
+    echo "Create [${volume}] volume!"
+    docker volume create ${volume} 1> /dev/null
+  else
+    echo "[${volume}] already exists..."
+  fi
+done

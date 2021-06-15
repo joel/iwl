@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+docker network ls | grep ${SERVICE_NAME}-bridge-docker-network 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Network Removed!"
+else
+  echo "Removing Network"
+  docker network rm ${SERVICE_NAME}-bridge-docker-network 1> /dev/null
+fi
+
+volumes=(
+  ${SERVICE_NAME}-db-data
+  ${SERVICE_NAME}-redis-data
+  ${SERVICE_NAME}-dev-bundle-volume
+)
+
+for volume in "${volumes[@]}"
+do
+  docker volume ls | grep ${volume} 1> /dev/null
+  if [[ $? = 1 ]]; then
+    echo "Volume [${volume}] removed!"
+  else
+    echo "Removing [${volume}]..."
+    docker volume rm ${volume} 1> /dev/null
+  fi
+done

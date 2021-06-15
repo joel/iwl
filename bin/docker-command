@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+SERVICE_NAME=iwl
+
+if [ $# -lt 2 ]
+  then
+    echo "need to provide the target platform and command"
+    echo "e.g: ./docker_command test bundle exec rake"
+    exit 1
+fi
+
+function args_to_array() {
+  string="$@"
+  array=()
+  while read -rd ' ' || [[ -n "${REPLY}" ]]; do
+    strip_entry=$(echo "${REPLY}" | sed -E 's/[[:space:]]+//g')
+    array+=(${strip_entry})
+  done <<<"${string}"
+}
+
+function destructuring!() {
+  target="${array[0]}"
+  params=("${array[@]:1}") # removes the first element
+  CMD=""
+  for i in ${params[@]}; do
+    CMD+="${i} "
+  done
+  CMD=${CMD%?} # remove trailing space
+}
+
+args_to_array "$@"
+destructuring!
+
+echo "target: [${target}]"
+echo "command: [${CMD}]"
+
+possible_values=("test" "production" "dev" "ci")
+
+if [[ ! " ${possible_values[@]} " =~ " ${target} " ]]; then
+  echo "target should be either: test,production,dev or ci"
+  exit 1
+fi
+
+if [[ ${target} == 'development' ]]
+then
+  echo '==============================================='
+  echo '========= COMMAND DEVELOPMENT IMAGE ==========='
+  echo '==============================================='
+
+  docker run --rm \
+    --detach \
+    --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
+    --env DATABASE_URL="mysql2://mysql_user:mysql_password@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_development" \
+    --env RAILS_LOG_TO_STDOUT=true \
+    --env LOG_LEVEL=debug \
+    --env LOG_APPENDER=true \
+    --network ${SERVICE_NAME}-bridge-docker-network \
+    --mount type=bind,source=$PWD,target=/work \
+    ${SERVICE_NAME}/dev:latest sh -c "${CMD}"
+fi
+
+if [[ ${target} == 'test' ]]
+then
+  echo '=========================================='
+  echo '=========== COMMAND TEST IMAGE ==========='
+  echo '=========================================='
+
+  docker run --rm \
+    --detach \
+    --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
+    --env DATABASE_URL="mysql2://mysql_user:mysql_password@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_development" \
+    --env RAILS_LOG_TO_STDOUT=true \
+    --env LOG_LEVEL=debug \
+    --env LOG_APPENDER=true \
+    --network ${SERVICE_NAME}-bridge-docker-network \
+    --mount type=bind,source=$PWD,target=/work \
+    ${SERVICE_NAME}/test:latest sh -c "${CMD}"
+fi

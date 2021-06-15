@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+./bin/redis-start & \
+./bin/db-start

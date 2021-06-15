@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+docker container ls | grep ${SERVICE_NAME}-redis 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Redis Stop!"
+  docker container rm ${SERVICE_NAME}-redis > /dev/null 2>&1
+else
+  echo "Stopping Redis..."
+  docker container stop ${SERVICE_NAME}-redis 1> /dev/null
+fi

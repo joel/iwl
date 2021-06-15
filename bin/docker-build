@@ -20,7 +20,7 @@ if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
   exit 1
 fi
 
-case "$1" in
+case "${PF_TARGET}" in
   'prod')
     echo '==============================================='
     echo '========== BUILD PRODUCTION IMAGE ============'

@@ -2,68 +2,66 @@
 
 source ./bin/init-env
 
-ARG_RUBY_VERSION=2.7.3
-
 if [ $# -eq 0 ]
   then
-    echo "need to provide the target platform"
-    echo "e.g: test,prod,dev or ci"
-    exit 1
+    echo "Building dev image"
+    echo "You can start either test,prod,dev or ci"
+    echo "e.g bin/docker-build dev"
+    echo "e.g bin/docker-build prod"
+    echo "..."
 fi
 
-if [[ -n $1 && $1 == 'prod' ]]
-then
-  echo '==============================================='
-  echo '========== BUILD PRODUCTION IMAGE ============'
-  echo '==============================================='
+PF_TARGET="${1:-dev}"
 
-  docker build --squash \
-  --tag ${SERVICE_NAME}/prod:latest \
-  --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
-  . -f dockerfiles/Dockerfile.prod
+POSSIBLE_VALUES=("prod" "dev" "prod" "ci")
+
+if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
+  echo "target should be either: test,prod,dev or ci"
+  exit 1
 fi
 
-if [[ -n $1 && $1 == 'dev' ]]
-then
-  echo '==============================================='
-  echo '========== BUILD DEVELOPMENT IMAGE ============'
-  echo '==============================================='
+case "$1" in
+  'prod')
+    echo '==============================================='
+    echo '========== BUILD PRODUCTION IMAGE ============'
+    echo '==============================================='
 
-	echo "Build development image"
+    docker build --squash \
+    --tag ${SERVICE_NAME}/prod:latest \
+    --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
+    . -f dockerfiles/Dockerfile.prod
+  ;;
+  'dev')
+    echo '==============================================='
+    echo '========== BUILD DEVELOPMENT IMAGE ============'
+    echo '==============================================='
 
-  docker build --squash \
-  --tag ${SERVICE_NAME}/dev:latest \
-  --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
-  . -f dockerfiles/Dockerfile.dev
-fi
+    docker build --squash \
+    --tag ${SERVICE_NAME}/dev:latest \
+    --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
+    . -f dockerfiles/Dockerfile.dev
+  ;;
+  'test')
+    echo '==============================================='
+    echo '========== BUILD TEST IMAGE ============'
+    echo '==============================================='
 
-if [[ -n $1 && $1 == 'test' ]]
-then
-  echo '==============================================='
-  echo '========== BUILD TEST IMAGE ============'
-  echo '==============================================='
+    docker build --squash \
+    --tag ${SERVICE_NAME}/test:latest \
+    --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
+    . -f dockerfiles/Dockerfile.test
+  ;;
+  'ci')
+    echo '==============================================='
+    echo '========== BUILD CI IMAGE ============'
+    echo '==============================================='
 
-	echo "Build test image"
-
-  docker build --squash \
-  --tag ${SERVICE_NAME}/test:latest \
-  --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
-  . -f dockerfiles/Dockerfile.test
-fi
-
-if [[ -n $1 && $1 == 'ci' ]]
-then
-  echo '==============================================='
-  echo '========== BUILD CI IMAGE ============'
-  echo '==============================================='
-
-	echo "Build ci image"
-
-  docker build --squash \
-  --tag ${SERVICE_NAME}/ci:latest \
-  --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
-  --build-arg ARG_BUNDLER_VERSION=2.2.19 \
-  --build-arg ARG_COMPOSE_WAIT_VER=2.9.0 \
-  --build-arg ARG_GEM_HOME=/bundle \
-  . -f dockerfiles/Dockerfile.ci
-fi
+    docker build --squash \
+    --tag ${SERVICE_NAME}/ci:latest \
+    --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
+    --build-arg ARG_BUNDLER_VERSION=2.2.19 \
+    --build-arg ARG_COMPOSE_WAIT_VER=2.9.0 \
+    --build-arg ARG_GEM_HOME=/bundle \
+    . -f dockerfiles/Dockerfile.ci
+  ;;
+esac

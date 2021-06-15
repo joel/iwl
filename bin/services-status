@@ -20,14 +20,14 @@ else
   echo "DB Started..."
 fi
 
-ps -ef | grep puma | grep 3005 1> /dev/null
+ps -ef | grep puma | grep ${DEV_SERVER_PUBLISHED_PORT} 1> /dev/null
 if [[ $? = 1 ]]; then
   echo "Server Dev Stop!"
 else
   echo "Server Dev Started..."
 fi
 
-ps -ef | grep puma | grep 3010 1> /dev/null
+ps -ef | grep puma | grep ${PROD_SERVER_PUBLISHED_PORT} 1> /dev/null
 if [[ $? = 1 ]]; then
   echo "Server Prod Stop!"
 else

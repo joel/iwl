@@ -2,20 +2,38 @@
 
 source ./bin/init-env
 
-# --publish 3306:3306 \
+function cmd() {
+
+  array=()
+  array+=("docker run --rm --detach")
+  array+=("--name ${SERVICE_NAME}-db")
+  array+=("--env MYSQL_ROOT_PASSWORD=mysql_password")
+  array+=("--env MYSQL_PASSWORD=mysql_password")
+  array+=("--env MYSQL_USER=mysql_user")
+  array+=("--mount source=${SERVICE_NAME}-db-data,target=/var/lib/mysql")
+  array+=("--mount type=bind,source=$PWD/dumps,target=/dumps")
+  array+=("--network ${SERVICE_NAME}-bridge-docker-network")
+
+  if [[ -n $1 && $1 == 'publish' ]]
+  then
+    array+=("--publish ${DB_PUBLISHED_PORT}:3306")
+  fi
+
+  array+=("mysql:5.7.33")
+
+  CMD=""
+  for line in ${array[@]}; do
+    CMD+="${line} "
+  done
+  CMD=${CMD%?} # remove trailing space
+
+  ${CMD}
+}
 
 docker container ls | grep ${SERVICE_NAME}-db 1> /dev/null
 if [[ $? = 1 ]]; then
   echo "Starting DB... "
-  docker run --rm --detach \
-  --name ${SERVICE_NAME}-db \
-  --env MYSQL_ROOT_PASSWORD=mysql_password \
-  --env MYSQL_PASSWORD=mysql_password \
-  --env MYSQL_USER=mysql_user \
-  --mount source=${SERVICE_NAME}-db-data,target=/var/lib/mysql \
-  --mount type=bind,source=$PWD/dumps,target=/dumps \
-  --network ${SERVICE_NAME}-bridge-docker-network \
-  mysql:5.7.33 > /dev/null 2>&1
+  eval cmd $1 > /dev/null 2>&1
 else
   echo "DB Started!"
 fi

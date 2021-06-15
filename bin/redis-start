@@ -2,16 +2,35 @@
 
 source ./bin/init-env
 
-# --publish 6379:6379 \
+function cmd() {
+
+  array=()
+
+  array+=("docker run --rm --detach")
+  array+=("--name ${SERVICE_NAME}-redis")
+  array+=("--mount source=${SERVICE_NAME}-redis-data,target=/var/lib/redis/data")
+  array+=("--network ${SERVICE_NAME}-bridge-docker-network")
+
+  if [[ -n $1 && $1 == 'publish' ]]
+  then
+    array+=("--publish ${REDIS_PUBLISHED_PORT}:6379")
+  fi
+
+  array+=("redis:latest")
+
+  CMD=""
+  for line in ${array[@]}; do
+    CMD+="${line} "
+  done
+  CMD=${CMD%?} # remove trailing space
+
+  ${CMD}
+}
 
 docker container ls | grep ${SERVICE_NAME}-redis 1> /dev/null
 if [[ $? = 1 ]]; then
   echo "Starting Redis... "
-  docker run --rm --detach \
-  --name ${SERVICE_NAME}-redis \
-  --mount source=${SERVICE_NAME}-redis-data,target=/var/lib/redis/data \
-  --network ${SERVICE_NAME}-bridge-docker-network \
-  redis:latest > /dev/null 2>&1
+  eval cmd $1 > /dev/null 2>&1
 else
   echo "Redis Started!"
 fi

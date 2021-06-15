@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+DB_PORT=3333
+REDIS_URL=redis://localhost:6666/1
+
+ruby bin/rails "$@"

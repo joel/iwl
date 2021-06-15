@@ -4,43 +4,63 @@ source ./bin/init-env
 
 if [ $# -eq 0 ]
   then
-    echo "need to provide the target platform"
-    echo "e.g: ./show-logs dev"
-    exit 1
+    echo "Starting dev server"
+    echo "You can start either production or development"
+    echo "e.g bin/server-start dev"
+    echo "e.g bin/server-start prod"
 fi
 
-possible_values=("prod" "dev")
+PF_TARGET="${1:-dev}"
 
-if [[ ! " $1 " =~ " ${target} " ]]; then
+POSSIBLE_VALUES=("prod" "dev")
+
+if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
   echo "target should be either: prod or dev"
   exit 1
 fi
 
-./bin/services-start
-
 case "$1" in
   'prod')
-    docker run --rm --detach \
-      --name ${SERVICE_NAME}-prod-app \
-      --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
-      --env DATABASE_URL="mysql2://mysql_user:mysql_password@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_production" \
-      --env RAILS_LOG_TO_STDOUT=true \
-      --env LOG_LEVEL=debug \
-      --network ${SERVICE_NAME}-bridge-docker-network \
-      --publish 3010:3000 \
-      ${SERVICE_NAME}/prod:latest sh -c 'rm -f tmp/pids/server.pid && bin/rails server -p 3000 --early-hints -b 0.0.0.0' && \
-      ./bin/show-logs prod
+    FULL_SERVICE_ENV='production'
+    SERVICE_ENV='prod'
+    SERVER_PUBLISHED_PORT=${PROD_SERVER_PUBLISHED_PORT}
   ;;
   'dev')
-    docker run --rm --detach \
-      --name ${SERVICE_NAME}-dev-app \
-      --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
-      --env DATABASE_URL="mysql2://mysql_user:mysql_password@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_development" \
-      --env RAILS_LOG_TO_STDOUT=true \
-      --env LOG_LEVEL=debug \
-      --network ${SERVICE_NAME}-bridge-docker-network \
-      --publish 3005:3000 \
-      ${SERVICE_NAME}/dev:latest sh -c 'rm -f tmp/pids/server.pid && bin/rails server -p 3000 --early-hints -b 0.0.0.0' && \
-      ./bin/show-logs dev
+    FULL_SERVICE_ENV='develpment'
+    SERVICE_ENV='dev'
+    SERVER_PUBLISHED_PORT=${DEV_SERVER_PUBLISHED_PORT}
   ;;
 esac
+
+./bin/services-start "$@"
+
+function cmd() {
+
+  array=()
+
+  array+=("docker run --rm --detach")
+  array+=("--name ${SERVICE_NAME}-${SERVER_ENV}-app")
+  array+=("--env RAILS_LOG_TO_STDOUT=true")
+  array+=("--env LOG_LEVEL=debug")
+  array+=("--network ${SERVICE_NAME}-bridge-docker-network")
+  array+=("--publish ${SERVER_PUBLISHED_PORT}:3000")
+  array+=("--env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1")
+  array+=("--env DATABASE_URL=mysql2://mysql_user:mysql_password@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_${FULL_SERVER_ENV}")
+  array+=("${SERVICE_NAME}/${SERVER_ENV}:latest sh -c 'rm -f tmp/pids/server.pid && bin/rails server -p 3000 --early-hints -b 0.0.0.0'")
+
+  CMD=""
+  for line in ${array[@]}; do
+    CMD+="${line} "
+  done
+  CMD=${CMD%?} # remove trailing space
+
+  ${CMD}
+}
+
+docker container ls | grep ${SERVICE_NAME}-${SERVER_ENV}-app 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Starting [${PF_TARGET}] Server..."
+  eval cmd $1 > /dev/null 2>&1
+else
+  echo "Server [${PF_TARGET}] Started!"
+fi

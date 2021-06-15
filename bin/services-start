@@ -2,5 +2,5 @@
 
 source ./bin/init-env
 
-./bin/redis-start & \
-./bin/db-start
+./bin/redis-start "$@" & \
+./bin/db-start "$@"

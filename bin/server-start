@@ -19,6 +19,15 @@ if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
   exit 1
 fi
 
+./bin/services-start "$@"
+
+docker container ls | grep ${SERVICE_NAME}-${SERVICE_ENV}-app 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Starting [${PF_TARGET}] Server..."
+else
+  echo "Server [${PF_TARGET}] Started!"
+fi
+
 case "${PF_TARGET}" in
   'prod')
     FULL_SERVICE_ENV='production'
@@ -29,42 +38,16 @@ case "${PF_TARGET}" in
     FULL_SERVICE_ENV='development'
     SERVICE_ENV='dev'
     SERVER_PUBLISHED_PORT=${DEV_SERVER_PUBLISHED_PORT}
+
+    docker run --rm --detach \
+    --name ${SERVICE_NAME}-${SERVICE_ENV}-app \
+    --env RAILS_LOG_TO_STDOUT=true \
+    --env LOG_LEVEL=debug \
+    --network ${SERVICE_NAME}-bridge-docker-network \
+    --publish ${SERVER_PUBLISHED_PORT}:3000 \
+    --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
+    --env DATABASE_URL=mysql2://${DB_USER}:${DB_PASSWORD}@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_${FULL_SERVICE_ENV} \
+    --mount type=bind,source=$PWD,target=${APP_ROOT} \
+    ${SERVICE_NAME}/${SERVICE_ENV}:latest bash -c 'bin/rails server -p 3000 --early-hints -b 0.0.0.0'
   ;;
 esac
-
-./bin/services-start "$@"
-
-function cmd() {
-
-  array=()
-
-  array+=("docker run --rm")
-  array+=("--name ${SERVICE_NAME}-${SERVICE_ENV}-app")
-  array+=("--env RAILS_LOG_TO_STDOUT=true")
-  array+=("--env LOG_LEVEL=debug")
-  array+=("--network ${SERVICE_NAME}-bridge-docker-network")
-  array+=("--publish ${SERVER_PUBLISHED_PORT}:3000")
-  array+=("--env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1")
-  array+=("--env DATABASE_URL=mysql2://${DB_USER}:${DB_PASSWORD}@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_${FULL_SERVICE_ENV}")
-  array+=("--mount type=bind,source=$PWD,target=${APP_ROOT}")
-  array+=("${SERVICE_NAME}/${SERVICE_ENV}:latest bash -c 'rm -f tmp/pids/server.pid && bin/rails server -p 3000 --early-hints -b 0.0.0.0'")
-
-  CMD=""
-  for line in ${array[@]}; do
-    CMD+="${line} "
-  done
-  CMD=${CMD%?} # remove trailing space
-
-  echo "CMD: [${CMD}]"
-  echo "PWD: [$PWD]"
-
-  ${CMD}
-}
-
-docker container ls | grep ${SERVICE_NAME}-${SERVICE_ENV}-app 1> /dev/null
-if [[ $? = 1 ]]; then
-  echo "Starting [${PF_TARGET}] Server..."
-  eval cmd
-else
-  echo "Server [${PF_TARGET}] Started!"
-fi

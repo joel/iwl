@@ -13,7 +13,9 @@ fi
 
 PF_TARGET="${1:-dev}"
 
-POSSIBLE_VALUES=("prod" "dev" "prod" "ci")
+echo "PF_TARGET: [${PF_TARGET}]"
+
+POSSIBLE_VALUES=("prod" "dev" "test" "ci")
 
 if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
   echo "target should be either: test,prod,dev or ci"

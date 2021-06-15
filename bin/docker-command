@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SERVICE_NAME=iwl
+source ./bin/init-env
 
 if [ $# -lt 2 ]
   then
@@ -41,7 +41,7 @@ if [[ ! " ${possible_values[@]} " =~ " ${target} " ]]; then
   exit 1
 fi
 
-if [[ ${target} == 'development' ]]
+if [[ ${target} == 'dev' ]]
 then
   echo '==============================================='
   echo '========= COMMAND DEVELOPMENT IMAGE ==========='
@@ -68,10 +68,12 @@ then
   docker run --rm \
     --detach \
     --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
-    --env DATABASE_URL="mysql2://mysql_user:mysql_password@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_development" \
+    --env DB_USER=${DB_USER} \
+    --env DB_PASSWORD=${DB_PASSWORD} \
+    --env DB_HOST=${SERVICE_NAME}-db \
+    --env DB_PORT=3306 \
     --env RAILS_LOG_TO_STDOUT=true \
     --env LOG_LEVEL=debug \
-    --env LOG_APPENDER=true \
     --network ${SERVICE_NAME}-bridge-docker-network \
     --mount type=bind,source=$PWD,target=/work \
     ${SERVICE_NAME}/test:latest sh -c "${CMD}"

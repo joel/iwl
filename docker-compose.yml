@@ -15,6 +15,8 @@ services:
     build:
       context: .
       dockerfile: ./dockerfiles/Dockerfile.ci
+      cache_from:
+        - iwl-development-cache
       args:
         ARG_RUBY_VERSION: ${ARG_RUBY_VERSION}
         ARG_BUNDLER_VERSION: ${ARG_BUNDLER_VERSION}

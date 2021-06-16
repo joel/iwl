@@ -7,20 +7,14 @@ services:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-db_password}
     volumes:
       - db-data:/var/lib/mysql
-    ports:
-      - ${DB_FORWARDED_PORT}:3306
 
   redis:
     image: redis:latest
-    ports:
-      - ${REDIS_FORWARDED_PORT}:6379
 
   base: &base
     build:
       context: .
       dockerfile: ./dockerfiles/Dockerfile.ci
-      cache_from:
-        - iwl-development-cache
       args:
         ARG_RUBY_VERSION: ${ARG_RUBY_VERSION}
         ARG_BUNDLER_VERSION: ${ARG_BUNDLER_VERSION}
@@ -46,11 +40,16 @@ services:
 
   backend: &backend
     <<: *base
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379/1
+      - BUNDLE_PATH=/bundle
+      - GEM_HOME=/bundle
     stdin_open: true
     tty: true
     volumes:
       - ./:${ARG_APP_PATH}:cached
-      - rails-cache:/app/tmp/cache
+      - rails-cache:${ARG_APP_PATH}/tmp/cache
     depends_on:
       - db
 

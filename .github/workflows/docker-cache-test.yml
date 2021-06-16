@@ -83,7 +83,6 @@ jobs:
     env:
       GEMS_CACHE_DIR: /tmp/cache/bundle
       GEMS_CACHE_KEY: cache-gems
-      IMAGE_CACHE_DIR: ${{ env.IMAGE_CACHE_DIR }}
 
     steps:
     - name: Check out code
@@ -130,7 +129,7 @@ jobs:
           -e REDIS_URL=redis://${{ env.REDIS_HOST }}:${{ env.REDIS_PORT }}/1 \
           -e DB_USER=${{ env.DB_USER }} \
           -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
-          console bash -c "bin/rails db:create db:migrate test"
+          console bash -c "bundle install && bin/rails db:create db:migrate test"
 
   scan-image-by-trivy:
     needs: image-cache-or-build

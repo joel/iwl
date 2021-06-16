@@ -184,7 +184,7 @@ jobs:
       if: steps.cache-docker-image.outputs.cache-hit == 'true'
       run: docker image load -i ${{ env.IMAGE_CACHE_DIR }}/image.tar
 
-      - name: Wait middleware services
+    - name: Wait middleware services
       id: wait-middleware
       run: docker-compose run --rm wait-middleware
 

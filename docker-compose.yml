@@ -1,0 +1,65 @@
+version: "3.7"
+
+services:
+  db:
+    image: mysql:5.7.33
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-db_password}
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - ${DB_FORWARDED_PORT}:3306
+
+  redis:
+    image: redis:latest
+    ports:
+      - ${REDIS_FORWARDED_PORT}:6379
+
+  base: &base
+    build:
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile.ci
+      cache_from:
+        - iwl-development-cache
+      args:
+        ARG_RUBY_VERSION: ${ARG_RUBY_VERSION}
+        ARG_BUNDLER_VERSION: ${ARG_BUNDLER_VERSION}
+        ARG_APP_PATH: ${ARG_APP_PATH}
+        ARG_RUBYGEMS_VERSION: ${ARG_RUBYGEMS_VERSION}
+    image: iwl-development:0.1.0
+    tmpfs:
+      - /tmp
+
+  wait-middleware: &wait-middleware
+    <<: *base
+    environment:
+      WAIT_HOSTS: db:3306, redis:6379
+      WAIT_TIMEOUT: 90
+      WAIT_HOST_CONNECT_TIMEOUT: 10
+      WAIT_BEFORE: 5
+      WAIT_AFTER: 5
+      WAIT_SLEEP_INTERVAL: 2
+    depends_on:
+      - db
+      - redis
+    command: /wait
+
+  backend: &backend
+    <<: *base
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/app:cached
+      - ${GEMS_CACHE_DIR:-bundle-cache}:/bundle
+      - rails-cache:/app/tmp/cache
+    depends_on:
+      - db
+
+  console:
+    <<: *backend
+    command: /bin/bash
+
+volumes:
+  db-data:
+  bundle-cache:
+  rails-cache:

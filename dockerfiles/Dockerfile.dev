@@ -1,13 +1,13 @@
-ARG ARG_RUBY_VERSION=2.7.3
+ARG ARG_RUBY_VERSION
 
 # ==================== #
 #      First Image     #
 # ==================== #
 FROM ruby:${ARG_RUBY_VERSION} AS intermediate
 
-ARG ARG_BUNDLER_VERSION=2.2.20
-ARG ARG_APP_PATH=/src
-ARG ARG_RUBYGEMS_VERSION=3.2.20
+ARG ARG_BUNDLER_VERSION
+ARG ARG_APP_PATH
+ARG ARG_RUBYGEMS_VERSION
 
 RUN apt-get update -qq && \
     apt-get install -y build-essential \
@@ -21,7 +21,7 @@ ENV BUNDLE_JOBS 20
 ENV BUNDLE_RETRY 5
 ENV BUNDLE_WITHOUT production
 ENV BUNDLE_CACHE_ALL true
-# ENV BUNDLER_VERSION ${ARG_BUNDLER_VERSION}
+ENV BUNDLER_VERSION ${ARG_BUNDLER_VERSION}
 ENV RUBYGEMS_VERSION ${ARG_RUBYGEMS_VERSION}
 
 ENV APP_PATH ${ARG_APP_PATH}
@@ -33,9 +33,7 @@ COPY Gemfile.lock ${ARG_APP_PATH}
 
 RUN gem update --system ${RUBYGEMS_VERSION}
 
-RUN bundle update --bundler
-
-RUN gem install bundler:'>= 2.2.x'
+RUN gem install bundler:${BUNDLER_VERSION}
 
 RUN bundle install
 
@@ -47,10 +45,9 @@ ENV RACK_ENV development
 # ==================== #
 FROM ruby:${ARG_RUBY_VERSION}
 
-ARG ARG_RUBY_VERSION=2.7.3
-ARG ARG_BUNDLER_VERSION=2.2.20
-ARG ARG_APP_PATH=/src
-ARG ARG_RUBYGEMS_VERSION=3.2.20
+ARG ARG_BUNDLER_VERSION
+ARG ARG_APP_PATH
+ARG ARG_RUBYGEMS_VERSION
 
 RUN apt-get update -qq && \
     apt-get install -y build-essential \

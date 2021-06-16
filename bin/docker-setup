@@ -13,7 +13,6 @@ fi
 volumes=(
   ${SERVICE_NAME}-db-data
   ${SERVICE_NAME}-redis-data
-  ${SERVICE_NAME}-dev-bundle-volume
 )
 
 for volume in "${volumes[@]}"

@@ -12,6 +12,6 @@ export DB_HOST=${HOST_URL}
 export DB_PORT=${DB_PUBLISHED_PORT}
 
 # export DATABASE_URL=mysql2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/iwl_development
-export REDIS_URL=redis://${HOST_URL}:6666/1
+export REDIS_URL=redis://${HOST_URL}:${REDIS_PUBLISHED_PORT}/1
 
 ruby bin/rails "$@"

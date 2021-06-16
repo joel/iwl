@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+if [ $# -eq 0 ]
+  then
+    echo "Opening dev server console"
+    echo "You can start either production or development"
+    echo "e.g bin/server-comsole dev"
+    echo "e.g bin/server-comsole prod"
+fi
+
+PF_TARGET="${1:-dev}"
+
+POSSIBLE_VALUES=("prod" "dev")
+
+if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
+  echo "target should be either: prod or dev"
+  exit 1
+fi
+
+./bin/services-start "$@"
+
+case "${PF_TARGET}" in
+  'prod')
+    FULL_SERVICE_ENV='production'
+    SERVICE_ENV='prod'
+    SERVER_PUBLISHED_PORT=${PROD_SERVER_PUBLISHED_PORT}
+
+    echo "prod not configured!!!"
+    exit 1
+  ;;
+  'dev')
+    FULL_SERVICE_ENV='development'
+    SERVICE_ENV='dev'
+    SERVER_PUBLISHED_PORT=${DEV_SERVER_PUBLISHED_PORT}
+  ;;
+esac
+
+docker container ls | grep ${SERVICE_NAME}-${SERVICE_ENV}-app 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Starting [${PF_TARGET}] Server Console..."
+  docker run --rm -it \
+    --name ${SERVICE_NAME}-${SERVICE_ENV}-app \
+    --env RAILS_LOG_TO_STDOUT=true \
+    --env LOG_LEVEL=debug \
+    --network ${SERVICE_NAME}-bridge-docker-network \
+    --publish ${SERVER_PUBLISHED_PORT}:3000 \
+    --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
+    --env DATABASE_URL=mysql2://${DB_USER}:${DB_PASSWORD}@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_${FULL_SERVICE_ENV} \
+    --mount type=bind,source=$PWD,target=${ARG_APP_PATH} \
+    ${SERVICE_NAME}/${SERVICE_ENV}:latest bash -c 'bin/rails console'
+else
+  echo "Connecting to [${PF_TARGET}] Server Console...."
+  docker exec -it ${SERVICE_NAME}-${SERVICE_ENV}-app bash -c 'bin/rails console'
+fi
+

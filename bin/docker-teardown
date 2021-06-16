@@ -2,6 +2,10 @@
 
 source ./bin/init-env
 
+./bin/server-stop & \
+  ./bin/services-stop prod & \
+  ./bin/services-stop dev
+
 docker network ls | grep ${SERVICE_NAME}-bridge-docker-network 1> /dev/null
 if [[ $? = 1 ]]; then
   echo "Network Removed!"
@@ -13,7 +17,6 @@ fi
 volumes=(
   ${SERVICE_NAME}-db-data
   ${SERVICE_NAME}-redis-data
-  ${SERVICE_NAME}-dev-bundle-volume
 )
 
 for volume in "${volumes[@]}"
@@ -24,5 +27,23 @@ do
   else
     echo "Removing [${volume}]..."
     docker volume rm ${volume} 1> /dev/null
+  fi
+done
+
+images=(
+  ${SERVICE_NAME}/ci
+  ${SERVICE_NAME}/test
+  ${SERVICE_NAME}/dev
+  ${SERVICE_NAME}/prod
+)
+
+for image in "${images[@]}"
+do
+  docker image ls | grep ${image} | grep latest 1> /dev/null
+  if [[ $? = 1 ]]; then
+    echo "image [${image}] removed!"
+  else
+    echo "Removing [${image}]..."
+    docker image rm ${image} 1> /dev/null
   fi
 done

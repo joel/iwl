@@ -34,6 +34,8 @@ RUN gem update --system ${RUBYGEMS_VERSION}
 
 RUN gem install bundler:${BUNDLER_VERSION}
 
+RUN bundle install
+
 ENV RAILS_ENV development
 ENV RACK_ENV development
 

@@ -49,8 +49,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./:${ARG_APP_PATH}
-      - ${GEMS_CACHE_DIR:-bundle-cache}:/bundle
+      - ./:${ARG_APP_PATH}:cached
       - rails-cache:/app/tmp/cache
     depends_on:
       - db
@@ -61,5 +60,4 @@ services:
 
 volumes:
   db-data:
-  bundle-cache:
   rails-cache:

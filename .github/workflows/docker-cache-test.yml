@@ -111,15 +111,6 @@ jobs:
       id: confirm-docker-compose-logs
       run: docker-compose logs db
 
-    - name: Cache bundle gems
-      id: cache-bundle-gems
-      uses: actions/cache@v1
-      with:
-        path: ${{ env.GEMS_CACHE_DIR }}
-        key: ${{ runner.os }}-${{ env.GEMS_CACHE_KEY }}-${{ matrix.ruby }}-${{ hashFiles('Gemfile.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ env.GEMS_CACHE_KEY }}-${{ matrix.ruby }}-
-
     - name: Setup and Run test
       id: setup-and-run-test
       run: |
@@ -129,7 +120,7 @@ jobs:
           -e REDIS_URL=redis://${{ env.REDIS_HOST }}:${{ env.REDIS_PORT }}/1 \
           -e DB_USER=${{ env.DB_USER }} \
           -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
-          console bash -c "bundle install && bin/rails db:create db:migrate test"
+          console bash -c "bin/rails db:create db:migrate test"
 
   scan-image-by-trivy:
     needs: image-cache-or-build
@@ -200,15 +191,6 @@ jobs:
       id: confirm-docker-compose-logs
       run: docker-compose logs db
 
-    - name: Cache bundle gems
-      id: cache-bundle-gems
-      uses: actions/cache@v1
-      with:
-        path: ${{ env.GEMS_CACHE_DIR }}
-        key: ${{ runner.os }}-${{ env.GEMS_CACHE_KEY }}-${{ matrix.ruby }}-${{ hashFiles('Gemfile.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ env.GEMS_CACHE_KEY }}-${{ matrix.ruby }}-
-
     - name: Lint code
       id: lint-code
       run: |
@@ -218,4 +200,4 @@ jobs:
           -e REDIS_URL=redis://${{ env.REDIS_HOST }}:${{ env.REDIS_PORT }}/1 \
           -e DB_USER=${{ env.DB_USER }} \
           -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
-          console bash -c "bundle install && bin/bundle rubocop"
+          console bash -c "bin/bundle rubocop"

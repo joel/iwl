@@ -31,7 +31,7 @@ jobs:
   image-cache-or-build:
     strategy:
       matrix:
-        ruby: [ ${{ env.ARG_RUBY_VERSION }} ]
+        ruby: ["2.7.3"]
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     env:
@@ -79,7 +79,7 @@ jobs:
     needs: image-cache-or-build
     strategy:
       matrix:
-        ruby: [ ${{ env.ARG_RUBY_VERSION }} ]
+        ruby: ["2.7.3"]
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     env:
@@ -138,7 +138,7 @@ jobs:
     needs: image-cache-or-build
     strategy:
       matrix:
-        ruby: [ ${{ env.ARG_RUBY_VERSION }} ]
+        ruby: ["2.7.3"]
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     env:

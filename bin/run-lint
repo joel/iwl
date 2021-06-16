@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+./bin/init-env
+
+./bin/services-status
+
+./bin/docker-command dev "bin/bundle exec rubocop"

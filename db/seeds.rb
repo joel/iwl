@@ -10,5 +10,5 @@
 
 15.times.each do
   FactoryBot.create(:post)
-  print "."
+  print "." # rubocop:disable Rails/Output
 end

@@ -4,4 +4,4 @@
 
 ./bin/services-status
 
-./bin/docker-command test "bin/rails test:system"
+./bin/docker-command test "bin/rails test"

@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+if [ $# -eq 0 ]
+  then
+    echo "Opening dev server console"
+    echo "You can start either production or development"
+    echo "e.g bin/docker-console dev"
+    echo "e.g bin/docker-console prod"
+fi
+
+PF_TARGET="${1:-dev}"
+
+POSSIBLE_VALUES=("prod" "dev")
+
+if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
+  echo "target should be either: prod or dev"
+  exit 1
+fi
+
+./bin/services-start "$@"
+
+case "${PF_TARGET}" in
+  'prod')
+    SERVICE_ENV='prod'
+
+    echo "prod not configured!!!"
+    exit 1
+  ;;
+  'dev')
+    SERVICE_ENV='dev'
+  ;;
+esac
+
+docker container ls | grep ${SERVICE_NAME}-${SERVICE_ENV}-app 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Starting [${PF_TARGET}] Server Console..."
+
+  echo "Starting Container Not Configured!!!"
+  exit 1
+else
+  echo "Connecting to container [${PF_TARGET}]...."
+  docker exec -it ${SERVICE_NAME}-${SERVICE_ENV}-app bash
+fi
+

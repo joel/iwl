@@ -54,6 +54,9 @@ case "${PF_TARGET}" in
     docker build --squash \
     --tag ${SERVICE_NAME}/test:latest \
     --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
+    --build-arg ARG_BUNDLER_VERSION=${ARG_BUNDLER_VERSION} \
+    --build-arg ARG_APP_PATH=${ARG_APP_PATH} \
+    --build-arg ARG_RUBYGEMS_VERSION=${ARG_RUBYGEMS_VERSION} \
     . -f dockerfiles/Dockerfile.test
   ;;
   'ci')

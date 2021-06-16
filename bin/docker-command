@@ -34,47 +34,38 @@ destructuring!
 echo "target: [${target}]"
 echo "command: [${CMD}]"
 
-possible_values=("test" "production" "dev" "ci")
+PF_TARGET="${target}"
 
-if [[ ! " ${possible_values[@]} " =~ " ${target} " ]]; then
-  echo "target should be either: test,production,dev or ci"
+POSSIBLE_VALUES=("test" "dev")
+
+if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
+  echo "target should be either: test or dev"
   exit 1
 fi
 
-if [[ ${target} == 'dev' ]]
-then
-  echo '==============================================='
-  echo '========= COMMAND DEVELOPMENT IMAGE ==========='
-  echo '==============================================='
+./bin/services-status
 
-  docker run --rm \
-    --detach \
-    --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
-    --env DATABASE_URL="mysql2://mysql_user:mysql_password@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_development" \
-    --env RAILS_LOG_TO_STDOUT=true \
-    --env LOG_LEVEL=debug \
-    --env LOG_APPENDER=true \
-    --network ${SERVICE_NAME}-bridge-docker-network \
-    --mount type=bind,source=$PWD,target=/work \
-    ${SERVICE_NAME}/dev:latest sh -c "${CMD}"
-fi
+case "${PF_TARGET}" in
+  'test')
+    FULL_SERVICE_ENV='test'
+    SERVICE_ENV='test'
+  ;;
+  'dev')
+    FULL_SERVICE_ENV='development'
+    SERVICE_ENV='dev'
+  ;;
+esac
 
-if [[ ${target} == 'test' ]]
-then
-  echo '=========================================='
-  echo '=========== COMMAND TEST IMAGE ==========='
-  echo '=========================================='
-
-  docker run --rm \
-    --detach \
-    --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
-    --env DB_USER=${DB_USER} \
-    --env DB_PASSWORD=${DB_PASSWORD} \
-    --env DB_HOST=${SERVICE_NAME}-db \
-    --env DB_PORT=3306 \
-    --env RAILS_LOG_TO_STDOUT=true \
-    --env LOG_LEVEL=debug \
-    --network ${SERVICE_NAME}-bridge-docker-network \
-    --mount type=bind,source=$PWD,target=/work \
-    ${SERVICE_NAME}/test:latest sh -c "${CMD}"
-fi
+docker run --rm \
+  --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
+  --env DB_POOL=${DB_POOL} \
+  --env DB_USER=${DB_USER} \
+  --env DB_PASSWORD=${DB_PASSWORD} \
+  --env DB_HOST=${SERVICE_NAME}-db \
+  --env DB_PORT=3306 \
+  --env RAILS_LOG_TO_STDOUT=true \
+  --env LOG_LEVEL=debug \
+  --env LOG_APPENDER=true \
+  --network ${SERVICE_NAME}-bridge-docker-network \
+  --mount type=bind,source=$PWD,target=${ARG_APP_PATH} \
+  ${SERVICE_NAME}/${SERVICE_ENV}:latest sh -c "${CMD}"

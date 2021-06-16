@@ -2,8 +2,6 @@
 
 ./bin/init-env
 
-./bin/docker-setup && \
-./bin/db-start && \
-./bin/redis-start
+./bin/services-status
 
-./bin/docker-command test bin/rails db:prepare && bin/rails test
+./bin/docker-command test bin/rails test

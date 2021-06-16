@@ -2,9 +2,9 @@
 
 source ./bin/init-env
 
-./bin/server-stop & \
-  ./bin/services-stop prod & \
-  ./bin/services-stop dev
+./bin/server-stop dev & \
+  ./bin/server-stop prod & \
+  ./bin/services-stop
 
 docker network ls | grep ${SERVICE_NAME}-bridge-docker-network 1> /dev/null
 if [[ $? = 1 ]]; then

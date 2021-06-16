@@ -2,16 +2,28 @@
 
 source ./bin/init-env
 
-if [[ -n $1 && $1 == 'production' ]]
-then
-  echo '==============================================='
-  echo '=========== STOP PRODUCTION SERVER ============'
-  echo '==============================================='
-
-  docker container stop ${SERVICE_NAME}-prod-app
-
-else
-	echo "Stop development server"
-
-  docker container stop ${SERVICE_NAME}-dev-app
+if [ $# -eq 0 ]
+  then
+    echo "Stopping dev server"
+    echo "You can start either production or development"
+    echo "e.g bin/server-stop dev"
+    echo "e.g bin/server-stop prod"
 fi
+
+PF_TARGET="${1:-dev}"
+
+POSSIBLE_VALUES=("prod" "dev")
+
+if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
+  echo "target should be either: prod or dev"
+  exit 1
+fi
+
+docker container ls | grep ${SERVICE_NAME}-${PF_TARGET}-app 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Server [${PF_TARGET}] Stop!"
+else
+  echo "Stopping Server [${PF_TARGET}]..."
+  docker container stop ${SERVICE_NAME}-${SERVICE_ENV}-app
+fi
+

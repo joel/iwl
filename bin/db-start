@@ -2,13 +2,6 @@
 
 source ./bin/init-env
 
-export DB_PUBLISHED_PORT=3333
-export REDIS_PUBLISHED_PORT=6666
-export PROD_SERVER_PUBLISHED_PORT=3010
-export DEV_SERVER_PUBLISHED_PORT=3005
-export DB_USER=root
-export DB_PASSWORD=mysql_password
-
 function cmd() {
 
   array=()
@@ -38,7 +31,7 @@ function cmd() {
 docker container ls | grep ${SERVICE_NAME}-db 1> /dev/null
 if [[ $? = 1 ]]; then
   echo "Starting DB... "
-  eval cmd $1 > /dev/null 2>&1
+  eval cmd $1
 else
   echo "DB Started!"
 fi

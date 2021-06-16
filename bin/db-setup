@@ -21,26 +21,11 @@ fi
 
 ./bin/services-start
 
-case "${PF_TARGET}" in
-  'prod')
-    SERVICE_ENV='prod'
-    FULL_SERVICE_ENV='production'
-  ;;
-  'dev')
-    SERVICE_ENV='dev'
-    FULL_SERVICE_ENV='development'
-  ;;
-  'test')
-    SERVICE_ENV='test'
-    FULL_SERVICE_ENV='test'
-  ;;
-esac
-
-docker container ls | grep ${SERVICE_NAME}-${SERVICE_ENV}-app 1> /dev/null
+docker container ls | grep ${SERVICE_NAME}-${PF_TARGET}-app 1> /dev/null
 if [[ $? = 1 ]]; then
   echo "Starting container for [${PF_TARGET}]..."
-  ./bin/docker-command ${SERVICE_ENV} "bin/rails db:create db:migrate db:seed"
+  ./bin/docker-command ${PF_TARGET} "bin/rails db:create db:migrate db:seed"
 else
   echo "Connecting to container for [${PF_TARGET}]...."
-  docker exec ${SERVICE_NAME}-${SERVICE_ENV}-app bash -c 'bin/rails db:create db:migrate db:seed'
+  docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c 'bin/rails db:create db:migrate db:seed'
 fi

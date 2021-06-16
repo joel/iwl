@@ -85,10 +85,6 @@ jobs:
       GEMS_CACHE_KEY: cache-gems
 
     steps:
-    - name: Check out code
-      id: checkout
-      uses: actions/checkout@v2
-
     - name: Cache docker image
       id: cache-docker-image
       uses: actions/cache@v1
@@ -142,10 +138,6 @@ jobs:
       TRIVY_CACHE_DIR: /tmp/cache/trivy
 
     steps:
-    - name: Check out code
-      id: checkout
-      uses: actions/checkout@v2
-
     - name: Cache docker image
       id: cache-docker-image
       uses: actions/cache@v1
@@ -178,10 +170,6 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Check out code
-      id: checkout
-      uses: actions/checkout@v2
-
     - name: Cache docker image
       id: cache-docker-image
       uses: actions/cache@v1
@@ -196,6 +184,23 @@ jobs:
       if: steps.cache-docker-image.outputs.cache-hit == 'true'
       run: docker image load -i ${{ env.IMAGE_CACHE_DIR }}/image.tar
 
+      - name: Wait middleware services
+      id: wait-middleware
+      run: docker-compose run --rm wait-middleware
+
+    - name: Confirm docker-compose logs
+      id: confirm-docker-compose-logs
+      run: docker-compose logs db
+
+    - name: Cache bundle gems
+      id: cache-bundle-gems
+      uses: actions/cache@v1
+      with:
+        path: ${{ env.GEMS_CACHE_DIR }}
+        key: ${{ runner.os }}-${{ env.GEMS_CACHE_KEY }}-${{ matrix.ruby }}-${{ hashFiles('Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ env.GEMS_CACHE_KEY }}-${{ matrix.ruby }}-
+
     - name: Lint code
       id: lint-code
       run: |
@@ -205,4 +210,4 @@ jobs:
           -e REDIS_URL=redis://${{ env.REDIS_HOST }}:${{ env.REDIS_PORT }}/1 \
           -e DB_USER=${{ env.DB_USER }} \
           -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
-          console bash -c "bin/bundle rubocop"
+          console bash -c "bundle install && bin/bundle rubocop"

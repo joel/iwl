@@ -53,6 +53,8 @@ RUN apt-get update -qq && \
     apt-get install -y build-essential \
     libpq-dev \
     nodejs \
+    chromium-driver \
+    chromium \
     && rm -rf /var/lib/apt/lists/*
 
 ENV BUNDLE_PATH /bundle
@@ -62,6 +64,8 @@ ENV BUNDLE_RETRY 5
 ENV BUNDLE_WITHOUT production development
 ENV BUNDLE_CACHE_ALL true
 ENV BUNDLER_VERSION ${ARG_BUNDLER_VERSION}
+# ENV BUNDLE_BIN ${BUNDLE_PATH}/bin
+# ENV BUNDLE_APP_CONFIG ${BUNDLE_PATH}
 
 ENV APP_PATH ${ARG_APP_PATH}
 
@@ -73,6 +77,10 @@ COPY Gemfile ${ARG_APP_PATH}
 COPY Gemfile.lock ${ARG_APP_PATH}
 
 RUN bundle install
+
+RUN cp -vf /usr/bin/chromedriver /bundle/ruby/2.7.0/bin
+
+ENV PATH ${ARG_APP_PATH}/bin:${BUNDLE_PATH}/bin:${PATH}
 
 ENV RAILS_ENV test
 ENV RACK_ENV test

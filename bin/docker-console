@@ -5,42 +5,55 @@ source ./bin/init-env
 if [ $# -eq 0 ]
   then
     echo "Opening dev server console"
-    echo "You can start either production or development"
+    echo "You can start either production, development or test"
     echo "e.g bin/docker-console dev"
     echo "e.g bin/docker-console prod"
+    echo "..."
 fi
 
 PF_TARGET="${1:-dev}"
 
-POSSIBLE_VALUES=("prod" "dev")
+POSSIBLE_VALUES=("prod" "dev" "test")
 
 if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
-  echo "target should be either: prod or dev"
+  echo "target should be either: prod,dev or test"
   exit 1
 fi
 
-./bin/services-start "$@"
+./bin/services-start
 
 case "${PF_TARGET}" in
   'prod')
     SERVICE_ENV='prod'
-
-    echo "prod not configured!!!"
-    exit 1
   ;;
   'dev')
     SERVICE_ENV='dev'
+  ;;
+  'test')
+    SERVICE_ENV='test'
   ;;
 esac
 
 docker container ls | grep ${SERVICE_NAME}-${SERVICE_ENV}-app 1> /dev/null
 if [[ $? = 1 ]]; then
-  echo "Starting [${PF_TARGET}] Server Console..."
+  echo "Starting container [${PF_TARGET}]..."
 
-  echo "Starting Container Not Configured!!!"
-  exit 1
+  docker run --rm \
+    --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
+    --env DB_POOL=${DB_POOL} \
+    --env DB_USER=${DB_USER} \
+    --env DB_PASSWORD=${DB_PASSWORD} \
+    --env DB_HOST=${SERVICE_NAME}-db \
+    --env DB_PORT=3306 \
+    --env RAILS_LOG_TO_STDOUT=true \
+    --env LOG_LEVEL=debug \
+    --env LOG_APPENDER=true \
+    --network ${SERVICE_NAME}-bridge-docker-network \
+    --mount type=bind,source=$PWD,target=${ARG_APP_PATH} \
+    -it ${SERVICE_NAME}/${SERVICE_ENV}:latest bash
 else
   echo "Connecting to container [${PF_TARGET}]...."
+
   docker exec -it ${SERVICE_NAME}-${SERVICE_ENV}-app bash
 fi
 

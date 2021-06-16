@@ -22,54 +22,10 @@ if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
   exit 1
 fi
 
-case "${PF_TARGET}" in
-  'prod')
-    echo '==============================================='
-    echo '========== BUILD PRODUCTION IMAGE ============'
-    echo '==============================================='
-
-    docker build --squash \
-    --tag ${SERVICE_NAME}/prod:latest \
-    --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
-    . -f dockerfiles/Dockerfile.prod
-  ;;
-  'dev')
-    echo '==============================================='
-    echo '========== BUILD DEVELOPMENT IMAGE ============'
-    echo '==============================================='
-
-    docker build --squash \
-    --tag ${SERVICE_NAME}/dev:latest \
+docker build --no-cache \
+    --tag ${SERVICE_NAME}/${PF_TARGET}:latest \
     --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
     --build-arg ARG_BUNDLER_VERSION=${ARG_BUNDLER_VERSION} \
     --build-arg ARG_APP_PATH=${ARG_APP_PATH} \
     --build-arg ARG_RUBYGEMS_VERSION=${ARG_RUBYGEMS_VERSION} \
-    . -f dockerfiles/Dockerfile.dev
-  ;;
-  'test')
-    echo '==============================================='
-    echo '========== BUILD TEST IMAGE ============'
-    echo '==============================================='
-
-    docker build --squash \
-    --tag ${SERVICE_NAME}/test:latest \
-    --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
-    --build-arg ARG_BUNDLER_VERSION=${ARG_BUNDLER_VERSION} \
-    --build-arg ARG_APP_PATH=${ARG_APP_PATH} \
-    --build-arg ARG_RUBYGEMS_VERSION=${ARG_RUBYGEMS_VERSION} \
-    . -f dockerfiles/Dockerfile.test
-  ;;
-  'ci')
-    echo '==============================================='
-    echo '========== BUILD CI IMAGE ============'
-    echo '==============================================='
-
-    docker build --squash \
-    --tag ${SERVICE_NAME}/ci:latest \
-    --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
-    --build-arg ARG_BUNDLER_VERSION=2.2.19 \
-    --build-arg ARG_COMPOSE_WAIT_VER=2.9.0 \
-    --build-arg ARG_GEM_HOME=/bundle \
-    . -f dockerfiles/Dockerfile.ci
-  ;;
-esac
+    . -f dockerfiles/Dockerfile.${PF_TARGET}

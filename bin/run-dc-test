@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+./bin/services-status
+
+docker-compose run --rm \
+  -e DB_PORT=3306 \
+  -e DB_USER=${DB_USER} \
+  -e DB_PASSWORD=${DB_PASSWORD} \
+  console bash -c "bin/rails db:create db:migrate test"

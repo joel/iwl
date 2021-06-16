@@ -85,6 +85,10 @@ jobs:
       GEMS_CACHE_KEY: cache-gems
 
     steps:
+    - name: Check out code
+      id: checkout
+      uses: actions/checkout@v2
+
     - name: Cache docker image
       id: cache-docker-image
       uses: actions/cache@v1
@@ -170,6 +174,10 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+    - name: Check out code
+      id: checkout
+      uses: actions/checkout@v2
+
     - name: Cache docker image
       id: cache-docker-image
       uses: actions/cache@v1

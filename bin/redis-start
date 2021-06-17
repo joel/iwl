@@ -8,7 +8,7 @@ function cmd() {
 
   array+=("docker run --rm --detach")
   array+=("--name ${SERVICE_NAME}-redis")
-  array+=("--mount source=${SERVICE_NAME}-redis-data,target=/var/lib/redis/data")
+  array+=("--mount source=${SERVICE_NAME}-redis-data,target=/data")
   array+=("--network ${SERVICE_NAME}-bridge-docker-network")
 
   if [[ -n $1 && $1 == 'publish' ]]

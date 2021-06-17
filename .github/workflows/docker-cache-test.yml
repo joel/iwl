@@ -63,25 +63,11 @@ jobs:
           --build-arg ARG_RUBYGEMS_VERSION=${{ env.ARG_RUBYGEMS_VERSION }} \
         base
 
-    - name: Wait middleware services
-      run: docker-compose run --rm wait-middleware
-
-    - name: Setup the database
-      run: |
-        docker-compose run --rm \
-          -e DB_HOST=${{ env.DB_HOST }} \
-          -e DB_PORT=${{ env.DB_PORT }} \
-          -e REDIS_URL=redis://${{ env.REDIS_HOST }}:${{ env.REDIS_PORT }}/1 \
-          -e DB_USER=${{ env.DB_USER }} \
-          -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
-          console bash -c "bin/rails db:create db:migrate"
-
     - name: Docker tag and save
       if: steps.cache-docker-image.outputs.cache-hit != 'true'
       run: mkdir -p ${{ env.IMAGE_CACHE_DIR }}
         && docker image tag ${{ env.APP_IMAGE_TAG }} ${{ env.APP_IMAGE_CACHE_TAG }}
         && docker image save -o ${{ env.IMAGE_CACHE_DIR }}/image.tar ${{ env.APP_IMAGE_CACHE_TAG }}
-
 
   test-app:
     needs: image-cache-or-build
@@ -111,8 +97,15 @@ jobs:
     - name: Wait middleware services
       run: docker-compose run --rm wait-middleware
 
-    - name: Confirm docker-compose logs
-      run: docker-compose logs db
+    - name: Setup the database
+      run: |
+        docker-compose run --rm \
+          -e DB_HOST=${{ env.DB_HOST }} \
+          -e DB_PORT=${{ env.DB_PORT }} \
+          -e REDIS_URL=redis://${{ env.REDIS_HOST }}:${{ env.REDIS_PORT }}/1 \
+          -e DB_USER=${{ env.DB_USER }} \
+          -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
+          console bash -c "bin/rails db:create db:migrate"
 
     - name: Run test
       run: |
@@ -180,12 +173,6 @@ jobs:
     - name: Docker load
       if: steps.cache-docker-image.outputs.cache-hit == 'true'
       run: docker image load -i ${{ env.IMAGE_CACHE_DIR }}/image.tar
-
-    - name: Wait middleware services
-      run: docker-compose run --rm wait-middleware
-
-    - name: Confirm docker-compose logs
-      run: docker-compose logs db
 
     - name: Lint code
       id: lint-code

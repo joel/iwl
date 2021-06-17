@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+docker-compose stop & \
+yes | docker-compose rm & \
+docker image rm iwl/ci:latest

@@ -10,6 +10,8 @@ services:
 
   redis:
     image: redis:latest
+    volumes:
+      - redis-data:/data
 
   base: &base
     build:
@@ -62,3 +64,4 @@ services:
 volumes:
   db-data:
   rails-cache:
+  redis-data:

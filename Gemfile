@@ -39,8 +39,8 @@ gem "jbuilder", "~> 2.5"
 gem "bootsnap", ">= 1.1.0", require: false
 
 # Logger (Better Performance)
-gem 'amazing_print'
-gem 'rails_semantic_logger'
+gem "amazing_print"
+gem "rails_semantic_logger"
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

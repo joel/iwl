@@ -16,4 +16,3 @@ if defined?(FactoryBot)
 else
   puts("FactoryBot undefined") # rubocop:disable Rails/Output
 end
-

@@ -3,6 +3,18 @@
 <p>
   <strong>Name:</strong>
   <%= @post.name %>
+  <% if @post.header_picture.attached? %>
+    <%= image_tag url_for(@post.header_picture) %>
+
+    <%= form_for @post do |f| %>
+      <%= f.fields_for :header_picture_attachment_attributes do |header_picture_form| %>
+	      <%= header_picture_form.hidden_field :id, value: @post.header_picture_attachment.id %>
+      	<%= header_picture_form.hidden_field :_destroy, value: true %>
+      <% end %>
+      <%= f.submit "Delete header picture" %>
+    <% end %>
+
+  <% end %>
 </p>
 
 <%= link_to 'Edit', edit_post_path(@post) %> |

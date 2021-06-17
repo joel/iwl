@@ -25,6 +25,7 @@ class PostsController < ApplicationController
 
     respond_to do |format|
       if @post.save
+        # @post.header_picture.attach(params[:post][:header_picture])
         format.html { redirect_to @post, notice: "Post was successfully created." }
         format.json { render :show, status: :created, location: @post }
       else
@@ -38,6 +39,7 @@ class PostsController < ApplicationController
   def update
     respond_to do |format|
       if @post.update(post_params)
+        # @post.header_picture.attach(params[:post][:header_picture])
         format.html { redirect_to @post, notice: "Post was successfully updated." }
         format.json { render :show, status: :ok, location: @post }
       else
@@ -65,6 +67,10 @@ class PostsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def post_params
-    params.require(:post).permit(:name)
+    params.require(:post).permit(
+      :name,
+      :header_picture,
+      header_picture_attachment_attributes: %i[id _destroy]
+    )
   end
 end

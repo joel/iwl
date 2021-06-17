@@ -37,7 +37,6 @@ jobs:
 
     steps:
     - name: Check out code
-      id: checkout
       uses: actions/checkout@v2
 
     - name: Cache docker image
@@ -55,7 +54,6 @@ jobs:
       run: docker image load -i ${{ env.IMAGE_CACHE_DIR }}/image.tar
 
     - name: Docker build
-      id: docker-build
       run: |
         docker-compose build \
           --build-arg BUILDKIT_INLINE_CACHE=1 \
@@ -65,8 +63,20 @@ jobs:
           --build-arg ARG_RUBYGEMS_VERSION=${{ env.ARG_RUBYGEMS_VERSION }} \
         base
 
+    - name: Wait middleware services
+      run: docker-compose run --rm wait-middleware
+
+    - name: Setup the database
+      run: |
+        docker-compose run --rm \
+          -e DB_HOST=${{ env.DB_HOST }} \
+          -e DB_PORT=${{ env.DB_PORT }} \
+          -e REDIS_URL=redis://${{ env.REDIS_HOST }}:${{ env.REDIS_PORT }}/1 \
+          -e DB_USER=${{ env.DB_USER }} \
+          -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
+          console bash -c "bin/rails db:create db:migrate"
+
     - name: Docker tag and save
-      id: docker-tag-save
       if: steps.cache-docker-image.outputs.cache-hit != 'true'
       run: mkdir -p ${{ env.IMAGE_CACHE_DIR }}
         && docker image tag ${{ env.APP_IMAGE_TAG }} ${{ env.APP_IMAGE_CACHE_TAG }}
@@ -80,13 +90,9 @@ jobs:
         ruby: ["2.7.3"]
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
-    env:
-      GEMS_CACHE_DIR: /tmp/cache/bundle
-      GEMS_CACHE_KEY: cache-gems
 
     steps:
     - name: Check out code
-      id: checkout
       uses: actions/checkout@v2
 
     - name: Cache docker image
@@ -99,20 +105,16 @@ jobs:
           ${{ runner.os }}-${{ env.IMAGE_CACHE_KEY }}-${{ matrix.ruby }}-
 
     - name: Docker load
-      id: docker-load
       if: steps.cache-docker-image.outputs.cache-hit == 'true'
       run: docker image load -i ${{ env.IMAGE_CACHE_DIR }}/image.tar
 
     - name: Wait middleware services
-      id: wait-middleware
       run: docker-compose run --rm wait-middleware
 
     - name: Confirm docker-compose logs
-      id: confirm-docker-compose-logs
       run: docker-compose logs db
 
-    - name: Setup and Run test
-      id: setup-and-run-test
+    - name: Run test
       run: |
         docker-compose run --rm \
           -e DB_HOST=${{ env.DB_HOST }} \
@@ -120,7 +122,7 @@ jobs:
           -e REDIS_URL=redis://${{ env.REDIS_HOST }}:${{ env.REDIS_PORT }}/1 \
           -e DB_USER=${{ env.DB_USER }} \
           -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
-          console bash -c "bin/rails db:create db:migrate test"
+          console bash -c "bin/rails test"
 
   scan-image-by-trivy:
     needs: image-cache-or-build
@@ -143,12 +145,10 @@ jobs:
           ${{ runner.os }}-${{ env.IMAGE_CACHE_KEY }}-${{ matrix.ruby }}-
 
     - name: Docker load
-      id: docker-load
       if: steps.cache-docker-image.outputs.cache-hit == 'true'
       run: docker image load -i ${{ env.IMAGE_CACHE_DIR }}/image.tar
 
     - name: Scan image
-      id: scan-image
       run: docker container run
         --rm
         -v /var/run/docker.sock:/var/run/docker.sock
@@ -166,7 +166,6 @@ jobs:
 
     steps:
     - name: Check out code
-      id: checkout
       uses: actions/checkout@v2
 
     - name: Cache docker image
@@ -179,16 +178,13 @@ jobs:
           ${{ runner.os }}-${{ env.IMAGE_CACHE_KEY }}-${{ matrix.ruby }}-
 
     - name: Docker load
-      id: docker-load
       if: steps.cache-docker-image.outputs.cache-hit == 'true'
       run: docker image load -i ${{ env.IMAGE_CACHE_DIR }}/image.tar
 
     - name: Wait middleware services
-      id: wait-middleware
       run: docker-compose run --rm wait-middleware
 
     - name: Confirm docker-compose logs
-      id: confirm-docker-compose-logs
       run: docker-compose logs db
 
     - name: Lint code

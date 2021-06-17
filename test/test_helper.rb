@@ -4,14 +4,20 @@ ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
 
+Dir[Rails.root.join("test/support/**/*.rb")].each { |f| require f }
+
+require "minitest/autorun"
+
+require "database_cleaner"
+require "database_cleaner/active_record"
+
+DatabaseCleaner.strategy = :transaction
+
 module ActiveSupport
   class TestCase
+    extend MiniTest::Spec::DSL
     include FactoryBot::Syntax::Methods
-    # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-    # fixtures :all
+    include DatabaseCleanerHook
 
-    # Add more helper methods to be used by all tests here...
   end
 end
-
-Dir[Rails.root.join("test/support/**/*.rb")].each { |f| require f }

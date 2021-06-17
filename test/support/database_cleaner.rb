@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require "database_cleaner"
-require "database_cleaner/active_record"
-require "minitest/autorun"
-require "minitest/around"
-require "minitest/around/unit"
+module DatabaseCleanerHook
+  extend ActiveSupport::Concern
 
-DatabaseCleaner.strategy = :transaction
+  included do
+    before(:all) do
+      DatabaseCleaner.start
+    end
 
-class Minitest::Spec # rubocop:disable Style/ClassAndModuleChildren
-  around do |tests|
-    DatabaseCleaner.cleaning(&tests)
+    after(:all) do
+      DatabaseCleaner.clean
+    end
   end
 end

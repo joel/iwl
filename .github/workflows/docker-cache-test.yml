@@ -42,7 +42,7 @@ jobs:
 
     - name: Cache docker image
       id: cache-docker-image
-      uses: actions/cache@v1
+      uses: actions/cache@v2.1.6
       with:
         path: ${{ env.IMAGE_CACHE_DIR }}
         key: ${{ runner.os }}-${{ env.IMAGE_CACHE_KEY }}-${{ matrix.ruby }}-${{ hashFiles('Dockerfile') }}
@@ -91,7 +91,7 @@ jobs:
 
     - name: Cache docker image
       id: cache-docker-image
-      uses: actions/cache@v1
+      uses: actions/cache@v2.1.6
       with:
         path: ${{ env.IMAGE_CACHE_DIR }}
         key: ${{ runner.os }}-${{ env.IMAGE_CACHE_KEY }}-${{ matrix.ruby }}-${{ hashFiles('Dockerfile') }}
@@ -135,7 +135,7 @@ jobs:
     steps:
     - name: Cache docker image
       id: cache-docker-image
-      uses: actions/cache@v1
+      uses: actions/cache@v2.1.6
       with:
         path: ${{ env.IMAGE_CACHE_DIR }}
         key: ${{ runner.os }}-${{ env.IMAGE_CACHE_KEY }}-${{ matrix.ruby }}-${{ hashFiles('Dockerfile') }}
@@ -171,7 +171,7 @@ jobs:
 
     - name: Cache docker image
       id: cache-docker-image
-      uses: actions/cache@v1
+      uses: actions/cache@v2.1.6
       with:
         path: ${{ env.IMAGE_CACHE_DIR }}
         key: ${{ runner.os }}-${{ env.IMAGE_CACHE_KEY }}-${{ matrix.ruby }}-${{ hashFiles('Dockerfile') }}

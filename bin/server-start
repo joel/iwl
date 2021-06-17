@@ -43,8 +43,9 @@ if [[ $? = 1 ]]; then
 
   docker run --rm --detach \
     --name ${SERVICE_NAME}-${SERVICE_ENV}-app \
-    --env RAILS_LOG_TO_STDOUT=true \
-    --env LOG_LEVEL=debug \
+    --env RAILS_LOG_TO_STDOUT=${RAILS_LOG_TO_STDOUT} \
+    --env LOG_LEVEL=${LOG_LEVEL} \
+    --env LOG_APPENDER=${LOG_APPENDER} \
     --network ${SERVICE_NAME}-bridge-docker-network \
     --publish ${SERVER_PUBLISHED_PORT}:3000 \
     --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
@@ -52,6 +53,15 @@ if [[ $? = 1 ]]; then
     --mount type=bind,source=$PWD,target=${ARG_APP_PATH} \
     ${SERVICE_NAME}/${SERVICE_ENV}:latest bash -c 'bin/rails server -p 3000 --early-hints -b 0.0.0.0'
 
+    sleep 1
+
+    docker container ls | grep ${SERVICE_NAME}-${SERVICE_ENV}-app 1> /dev/null
+    if [[ $? = 1 ]]; then
+      echo "Please rebuild image [${PF_TARGET}]!"
+      echo "bin/docker-build ${PF_TARGET}"
+    else
+      echo "Server running: http://localhost:${SERVER_PUBLISHED_PORT}"
+    fi
 else
   echo "Server [${PF_TARGET}] Started!"
 fi

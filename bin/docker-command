@@ -63,9 +63,9 @@ docker run --rm \
   --env DB_PASSWORD=${DB_PASSWORD} \
   --env DB_HOST=${SERVICE_NAME}-db \
   --env DB_PORT=3306 \
-  --env RAILS_LOG_TO_STDOUT=true \
-  --env LOG_LEVEL=debug \
-  --env LOG_APPENDER=true \
+  --env RAILS_LOG_TO_STDOUT=${RAILS_LOG_TO_STDOUT} \
+  --env LOG_LEVEL=${LOG_LEVEL} \
+  --env LOG_APPENDER=${LOG_APPENDER} \
   --network ${SERVICE_NAME}-bridge-docker-network \
   --mount type=bind,source=$PWD,target=${ARG_APP_PATH} \
   ${SERVICE_NAME}/${SERVICE_ENV}:latest sh -c "${CMD}"

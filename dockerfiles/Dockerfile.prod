@@ -3,25 +3,17 @@ ARG ARG_RUBY_VERSION
 # ==================== #
 #      First Image     #
 # ==================== #
-FROM ruby:${ARG_RUBY_VERSION}-alpine3.13 AS builder
+FROM ruby:${ARG_RUBY_VERSION} AS intermediate
 
 ARG ARG_BUNDLER_VERSION
 ARG ARG_APP_PATH
 ARG ARG_RUBYGEMS_VERSION
 
-LABEL maintener='joel.azemar@gmail.com'
-LABEL com.example.version="0.0.1-beta"
-LABEL vendor="ACME Incorporated"
-LABEL com.example.release-date="2021-03-08"
-
-# Minimal requirements to run a Rails app
-RUN apk add --no-cache --update build-base \
-  linux-headers \
-  git \
-  mariadb-dev \
+RUN apt-get update -qq && \
+  apt-get install -y build-essential \
+  libpq-dev \
   nodejs \
-  python2 \
-  tzdata
+  && rm -rf /var/lib/apt/lists/*
 
 ENV BUNDLE_PATH /bundle
 ENV GEM_HOME /bundle
@@ -31,15 +23,63 @@ ENV BUNDLE_WITHOUT test development
 ENV BUNDLE_CACHE_ALL true
 ENV BUNDLER_VERSION ${ARG_BUNDLER_VERSION}
 ENV RUBYGEMS_VERSION ${ARG_RUBYGEMS_VERSION}
+
 ENV RAILS_ENV production
 ENV RACK_ENV production
 ENV NODE_ENV production
+
 ENV APP_PATH ${ARG_APP_PATH}
 
-WORKDIR ${APP_PATH}
+WORKDIR ${ARG_APP_PATH}
 
-COPY Gemfile ${APP_PATH}
-COPY Gemfile.lock ${APP_PATH}
+COPY Gemfile ${ARG_APP_PATH}
+COPY Gemfile.lock ${ARG_APP_PATH}
+
+RUN gem update --system ${RUBYGEMS_VERSION}
+
+RUN gem install bundler:${BUNDLER_VERSION}
+
+RUN bundle config --global frozen 1 && \
+  bundle install && \
+  rm -rf ${BUNDLE_PATH}/cache/*.gem && \
+  find ${BUNDLE_PATH}/gems/ -name "*.c" -delete && \
+  find ${BUNDLE_PATH}/gems/ -name "*.o" -delete
+
+# ==================== #
+#     Second Image     #
+# ==================== #
+FROM ruby:${ARG_RUBY_VERSION}
+
+ARG ARG_BUNDLER_VERSION
+ARG ARG_APP_PATH
+ARG ARG_RUBYGEMS_VERSION
+
+RUN apt-get update -qq && \
+  apt-get install -y build-essential \
+  libpq-dev \
+  nodejs \
+  && rm -rf /var/lib/apt/lists/*
+
+ENV BUNDLE_PATH /bundle
+ENV GEM_HOME /bundle
+ENV BUNDLE_JOBS 20
+ENV BUNDLE_RETRY 5
+ENV BUNDLE_WITHOUT test development
+ENV BUNDLE_CACHE_ALL true
+ENV BUNDLER_VERSION ${ARG_BUNDLER_VERSION}
+
+ENV RAILS_ENV production
+ENV RACK_ENV production
+ENV NODE_ENV production
+
+ENV APP_PATH ${ARG_APP_PATH}
+
+WORKDIR ${ARG_APP_PATH}
+
+COPY --from=intermediate ${BUNDLE_PATH} ${BUNDLE_PATH}
+
+COPY Gemfile ${ARG_APP_PATH}
+COPY Gemfile.lock ${ARG_APP_PATH}
 
 RUN gem update --system ${RUBYGEMS_VERSION}
 
@@ -57,33 +97,5 @@ RUN SECRET_KEY_BASE="1" bin/rails assets:precompile --trace
 
 RUN bundle exec bootsnap precompile --gemfile app/ lib/
 
-# ==================== #
-#     Second Image     #
-# ==================== #
-FROM ruby:${ARG_RUBY_VERSION}
-
-ARG ARG_APP_PATH
-ENV APP_PATH ${ARG_APP_PATH}
-
-RUN mkdir -p ${APP_PATH}
-
-WORKDIR ${APP_PATH}
-
-ENV BUNDLE_PATH /bundle
-ENV GEM_HOME /bundle
-ENV RAILS_ENV production
-ENV RACK_ENV production
-ENV NODE_ENV production
-
-# Some native extensions required by gems such as pg or mysql2.
-COPY --from=builder /usr/lib /usr/lib
-
-# Timezone data is required at runtime
-COPY --from=builder /usr/share/zoneinfo/ /usr/share/zoneinfo/
-
-# Ruby gems
-COPY --from=builder ${BUNDLE_PATH} ${BUNDLE_PATH}
-
-COPY --from=builder ${APP_PATH} ${APP_PATH}
-
 ENV RAILS_SERVE_STATIC_FILES true
+

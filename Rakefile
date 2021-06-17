@@ -7,10 +7,12 @@ require_relative "config/application"
 
 Rails.application.load_tasks
 
-require "rubocop/rake_task"
+unless Rails.env.production?
+  require "rubocop/rake_task"
 
-RuboCop::RakeTask.new(:rubocop) do |task|
-  task.options = ["-a"] # auto_correct
+  RuboCop::RakeTask.new(:rubocop) do |task|
+    task.options = ["-a"] # auto_correct
+  end
+
+  task default: %i[test rubocop]
 end
-
-task default: %i[test rubocop]

@@ -18,6 +18,5 @@ module ActiveSupport
     extend MiniTest::Spec::DSL
     include FactoryBot::Syntax::Methods
     include DatabaseCleanerHook
-
   end
 end

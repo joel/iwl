@@ -36,10 +36,10 @@ echo "command: [${CMD}]"
 
 PF_TARGET="${target}"
 
-POSSIBLE_VALUES=("test" "dev")
+POSSIBLE_VALUES=("test" "dev" "prod")
 
 if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
-  echo "target should be either: test or dev"
+  echo "target should be either: prod,dev or test"
   exit 1
 fi
 
@@ -53,6 +53,10 @@ case "${PF_TARGET}" in
   'dev')
     FULL_SERVICE_ENV='development'
     SERVICE_ENV='dev'
+  ;;
+  'prod')
+    FULL_SERVICE_ENV='production'
+    SERVICE_ENV='prod'
   ;;
 esac
 

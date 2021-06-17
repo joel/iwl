@@ -8,7 +8,12 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-15.times.each do
-  FactoryBot.create(:post)
-  print "." # rubocop:disable Rails/Output
+if defined?(FactoryBot)
+  15.times.each do
+    FactoryBot.create(:post)
+    print "." # rubocop:disable Rails/Output
+  end
+else
+  puts("FactoryBot undefined") # rubocop:disable Rails/Output
 end
+

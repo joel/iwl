@@ -1,6 +1,13 @@
 ARG ARG_RUBY_VERSION
 
+# ==================== #
+#      First Image     #
+# ==================== #
 FROM ruby:${ARG_RUBY_VERSION}-alpine3.13 AS builder
+
+ARG ARG_BUNDLER_VERSION
+ARG ARG_APP_PATH
+ARG ARG_RUBYGEMS_VERSION
 
 LABEL maintener='joel.azemar@gmail.com'
 LABEL com.example.version="0.0.1-beta"
@@ -11,60 +18,62 @@ LABEL com.example.release-date="2021-03-08"
 RUN apk add --no-cache --update build-base \
   linux-headers \
   git \
-  postgresql-dev=~13 \
-  # Rails SQL schema format requires `pg_dump(1)` and `psql(1)`
-  postgresql=~13 \
-  # Install same version of pg_dump
-  postgresql-client=~13 \
+  mariadb-dev \
   nodejs \
-  yarn \
   python2 \
   tzdata
 
-ENV BUNDLER_VERSION 2.2.14
-ENV BUNDLE_JOBS 8
+ENV BUNDLE_PATH /bundle
+ENV GEM_HOME /bundle
+ENV BUNDLE_JOBS 20
 ENV BUNDLE_RETRY 5
-ENV BUNDLE_WITHOUT development:test
+ENV BUNDLE_WITHOUT test development
 ENV BUNDLE_CACHE_ALL true
+ENV BUNDLER_VERSION ${ARG_BUNDLER_VERSION}
+ENV RUBYGEMS_VERSION ${ARG_RUBYGEMS_VERSION}
 ENV RAILS_ENV production
 ENV RACK_ENV production
 ENV NODE_ENV production
-ENV APP_PATH /work
+ENV APP_PATH ${ARG_APP_PATH}
 
-WORKDIR $APP_PATH
+WORKDIR ${APP_PATH}
 
-# Gems installation
-COPY Gemfile Gemfile.lock ./
+COPY Gemfile ${APP_PATH}
+COPY Gemfile.lock ${APP_PATH}
 
-RUN gem install bundler -v $BUNDLER_VERSION
+RUN gem update --system ${RUBYGEMS_VERSION}
+
+RUN gem install bundler:${BUNDLER_VERSION}
 
 RUN bundle config --global frozen 1 && \
-    bundle install && \
-    rm -rf /usr/local/bundle/cache/*.gem && \
-    find /usr/local/bundle/gems/ -name "*.c" -delete && \
-    find /usr/local/bundle/gems/ -name "*.o" -delete
+  bundle install && \
+  rm -rf ${BUNDLE_PATH}/cache/*.gem && \
+  find ${BUNDLE_PATH}/gems/ -name "*.c" -delete && \
+  find ${BUNDLE_PATH}/gems/ -name "*.o" -delete
 
-# NPM packages installation
-COPY package.json yarn.lock ./
+ADD . ${APP_PATH}
 
-RUN yarn install --frozen-lockfile --non-interactive --production
-
-ADD . $APP_PATH
-
-RUN SECRET_KEY_BASE="1" rails assets:precompile --trace && \
-  yarn cache clean && \
-  rm -rf node_modules vendor/assets spec
+RUN SECRET_KEY_BASE="1" bin/rails assets:precompile --trace
 
 RUN bundle exec bootsnap precompile --gemfile app/ lib/
 
-FROM ruby:3.0.0-alpine3.13
+# ==================== #
+#     Second Image     #
+# ==================== #
+FROM ruby:${ARG_RUBY_VERSION}
 
-RUN mkdir -p /work
-WORKDIR /work
+ARG ARG_APP_PATH
+ENV APP_PATH ${ARG_APP_PATH}
 
+RUN mkdir -p ${APP_PATH}
+
+WORKDIR ${APP_PATH}
+
+ENV BUNDLE_PATH /bundle
+ENV GEM_HOME /bundle
 ENV RAILS_ENV production
+ENV RACK_ENV production
 ENV NODE_ENV production
-ENV RAILS_SERVE_STATIC_FILES true
 
 # Some native extensions required by gems such as pg or mysql2.
 COPY --from=builder /usr/lib /usr/lib
@@ -73,6 +82,8 @@ COPY --from=builder /usr/lib /usr/lib
 COPY --from=builder /usr/share/zoneinfo/ /usr/share/zoneinfo/
 
 # Ruby gems
-COPY --from=builder /usr/local/bundle /usr/local/bundle
+COPY --from=builder ${BUNDLE_PATH} ${BUNDLE_PATH}
 
-COPY --from=builder /work /work
+COPY --from=builder ${APP_PATH} ${APP_PATH}
+
+ENV RAILS_SERVE_STATIC_FILES true

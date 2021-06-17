@@ -12,7 +12,13 @@ RUN apt-get update -qq && \
     libpq-dev \
     nodejs \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean autoclean \
+    && apt-get autoremove -y \
+    && rm -rf \
+    /var/lib/apt \
+    /var/lib/dpkg \
+    /var/lib/cache \
+    /var/lib/log
 
 ENV BUNDLE_PATH /bundle
 ENV GEM_HOME /bundle

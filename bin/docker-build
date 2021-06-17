@@ -22,7 +22,7 @@ if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
   exit 1
 fi
 
-docker build --no-cache \
+docker build \
     --tag ${SERVICE_NAME}/${PF_TARGET}:latest \
     --build-arg ARG_RUBY_VERSION=${ARG_RUBY_VERSION} \
     --build-arg ARG_BUNDLER_VERSION=${ARG_BUNDLER_VERSION} \

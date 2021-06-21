@@ -20,13 +20,20 @@ module Behaveable
 
     private
 
-    def location_url(behaveable: nil, resource: nil)
+    def location_url(behaveable: nil, resource: nil) # rubocop:disable Metrics/MethodLength
       resource_name   = resource_name_from(resource)
       behaveable_name = behaveable_name_from(behaveable)
 
-      return "#{resource_name}_url" unless behaveable
+      url = behaveable ? "#{behaveable_name}_#{resource_name}_url" : "#{resource_name}_url"
 
-      "#{behaveable_name}_#{resource_name}_url"
+      case params[:action]
+      when "edit"
+        "edit_#{url}"
+      when "new"
+        "new_#{url}"
+      else
+        url
+      end
     end
 
     # Handle non-nested url location.
@@ -38,7 +45,7 @@ module Behaveable
     # ==== Returns
     # * <tt>Route</tt> - Url location.
     def regular(location_url:, resource:, format: :html)
-      return send(location_url, format: format) unless resource
+      return send(location_url, format: format) if resource.nil? || resource.id.nil?
 
       send(location_url, resource, format: format)
     end
@@ -53,7 +60,7 @@ module Behaveable
     # ==== Returns
     # * <tt>Route</tt> - Url location.
     def nested(location_url:, behaveable:, resource:, format: :html)
-      return send(location_url, behaveable, format: format) unless resource
+      return send(location_url, behaveable, format: format) if resource.nil? || resource.id.nil?
 
       send(location_url, behaveable, resource, format: format)
     end
@@ -66,7 +73,7 @@ module Behaveable
     # ==== Returns
     # * <tt>String</tt> - Resource name (singular or plural).
     def resource_name_from(resource)
-      inflection = resource&.id ? "singular" : "plural"
+      inflection = resource ? "singular" : "plural"
       params[:controller].split("/").last.send("#{inflection}ize")
     end
 

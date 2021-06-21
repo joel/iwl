@@ -42,7 +42,6 @@ class RouteExtractorTest < ActiveSupport::TestCase # rubocop:disable Metrics/Cla
         stub(@instance).params { @params }
         behaveable = nil
         resource = stub
-        mock(resource).id { 42 }
 
         assert_equal "image_url", @instance.send(:location_url, behaveable: behaveable, resource: resource)
       end
@@ -105,7 +104,6 @@ class RouteExtractorTest < ActiveSupport::TestCase # rubocop:disable Metrics/Cla
       test "should return singular name" do
         stub(@instance).params { @params }
         resource = stub
-        mock(resource).id { 42 }
         assert_equal "image", @instance.send(:resource_name_from, resource)
       end
     end
@@ -117,8 +115,7 @@ class RouteExtractorTest < ActiveSupport::TestCase # rubocop:disable Metrics/Cla
 
       test "should return plural name" do
         stub(@instance).params { @params }
-        resource = stub
-        mock(resource).id { nil }
+        resource = nil
         assert_equal "images", @instance.send(:resource_name_from, resource)
       end
     end
@@ -158,7 +155,7 @@ class RouteExtractorTest < ActiveSupport::TestCase # rubocop:disable Metrics/Cla
     context "with resource" do
       test "with resource" do
         resource = stub
-        mock(resource).id.at_least(1) { 42 }
+        mock(resource).id { 42 }
         behaveable = User.new
         mock(@instance).nested_somewhere_url(behaveable, resource, format: :html) { "/users/24/images/42" }
 

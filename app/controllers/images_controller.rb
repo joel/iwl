@@ -36,9 +36,9 @@ class ImagesController < ApplicationController
   # GET /images/1/edit
   def edit
     respond_to do |format|
-      format.html { render :edit, status: :ok, location: "edit_#{extract(behaveable: @behaveable, resource: @image)}" }
+      format.html { render :edit, status: :ok, location: extract(behaveable: @behaveable, resource: @image) }
       format.json do
-        render json: @image, status: :ok, location: "edit_#{extract(behaveable: @behaveable, resource: @image)}"
+        render json: @image, status: :ok, location: extract(behaveable: @behaveable, resource: @image)
       end
     end
   end
@@ -87,11 +87,11 @@ class ImagesController < ApplicationController
       else
         format.html do
           render :edit, status: :unprocessable_entity,
-                        location: "edit_#{extract(behaveable: @behaveable, resource: @image)}"
+                        location: extract(behaveable: @behaveable, resource: @image)
         end
         format.json do
           render json: @image.errors, status: :unprocessable_entity,
-                 location: "edit_#{extract(behaveable: @behaveable, resource: @image)}"
+                 location: extract(behaveable: @behaveable, resource: @image)
         end
       end
     end

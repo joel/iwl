@@ -9,7 +9,6 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
 
   describe "#index" do # rubocop:disable Metrics/BlockLength
     context "with an image" do # rubocop:disable Metrics/BlockLength
-
       context "html" do
         it "should get index" do
           get images_url

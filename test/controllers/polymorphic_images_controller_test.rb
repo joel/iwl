@@ -37,7 +37,7 @@ class PolymorphicImagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create image" do
-    assert_difference -> { @user.images.count } => 1 do
+    assert_difference -> { @user.images.count } => +1 do
       post user_images_url(user_id: @user.id), params: { image: { name: @image.name } }
     end
 

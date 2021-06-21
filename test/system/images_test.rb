@@ -36,9 +36,8 @@ class ImagesTest < ApplicationSystemTestCase
 
   test "destroying a Image" do
     visit images_url
-    page.accept_confirm do
-      click_on "Destroy", match: :first
-    end
+
+    click_on "Destroy", match: :first
 
     assert_text "Image was successfully destroyed"
   end

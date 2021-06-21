@@ -5,14 +5,10 @@
   <%= @image.name %>
 </p>
 
-<% if @image.attachments.attached? %>
-  <ul>
-    <% @image.attachments.each do |attachment| %>
-      <li><%= image_tag url_for(attachment) %></li>
-    <% end %>
-  </ul>
+<% if @image.attachment.attached? %>
+  <%= image_tag url_for(@image.attachment) %>
 <% else %>
-  No Attachments
+  No Attachment
 <% end %>
 
 <%= link_to 'Edit', edit_image_path(@image) %> |

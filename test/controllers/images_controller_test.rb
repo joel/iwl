@@ -3,11 +3,12 @@
 require "test_helper"
 
 class ImagesControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @image = create(:image)
+  end
+
   describe "#index" do # rubocop:disable Metrics/BlockLength
     context "with an image" do # rubocop:disable Metrics/BlockLength
-      setup do
-        @image = create(:image)
-      end
 
       context "html" do
         it "should get index" do
@@ -44,55 +45,51 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  # setup do
-  #   @image = create(:image)
-  # end
+  test "should get index" do
+    get images_url
+    assert_response :success
+    assert_match @image.name, @response.body
+  end
 
-  # test "should get index" do
-  #   get images_url
-  #   assert_response :success
-  #   assert_match @image.name, @response.body
-  # end
+  test "should get index json" do
+    get images_url(format: :json)
+    assert_response :success
+    assert_match @image.name, JSON.parse(@response.body)[0]["name"]
+  end
 
-  # test "should get index json" do
-  #   get images_url(format: :json)
-  #   assert_response :success
-  #   assert_match @image.name, JSON.parse(@response.body)[0]["name"]
-  # end
+  test "should get new" do
+    get new_image_url
+    assert_response :success
+  end
 
-  # test "should get new" do
-  #   get new_image_url
-  #   assert_response :success
-  # end
+  test "should create image" do
+    assert_difference("Image.count") do
+      post images_url, params: { image: { name: @image.name } }
+    end
 
-  # test "should create image" do
-  #   assert_difference("Image.count") do
-  #     post images_url, params: { image: { name: @image.name } }
-  #   end
+    assert_redirected_to image_url(Image.last, format: :html)
+  end
 
-  #   assert_redirected_to image_url(Image.last)
-  # end
+  test "should show image" do
+    get image_url(@image)
+    assert_response :success
+  end
 
-  # test "should show image" do
-  #   get image_url(@image)
-  #   assert_response :success
-  # end
+  test "should get edit" do
+    get edit_image_url(@image)
+    assert_response :success
+  end
 
-  # test "should get edit" do
-  #   get edit_image_url(@image)
-  #   assert_response :success
-  # end
+  test "should update image" do
+    patch image_url(@image), params: { image: { name: @image.name } }
+    assert_redirected_to image_url(@image, format: :html)
+  end
 
-  # test "should update image" do
-  #   patch image_url(@image), params: { image: { name: @image.name } }
-  #   assert_redirected_to image_url(@image)
-  # end
+  test "should destroy image" do
+    assert_difference("Image.count", -1) do
+      delete image_url(@image)
+    end
 
-  # test "should destroy image" do
-  #   assert_difference("Image.count", -1) do
-  #     delete image_url(@image)
-  #   end
-
-  #   assert_redirected_to images_url
-  # end
+    assert_redirected_to images_url(format: :html)
+  end
 end

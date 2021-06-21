@@ -71,6 +71,7 @@ group :test do
   # Easy installation and use of chromedriver to run system tests with Chrome
   gem "chromedriver-helper"
   gem "database_cleaner-active_record"
+  gem "minitest-focus"
   gem "minitest-reporters"
   gem "minitest-spec-context"
   gem "rr", require: false

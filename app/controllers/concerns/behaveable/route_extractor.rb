@@ -10,18 +10,24 @@ module Behaveable
     #
     # ==== Returns
     # * <tt>Route</tt> - Url location.
-    def extract(behaveable = nil, resource = nil)
-      resource_name   = resource_name_from(params)
-      behaveable_name = behaveable_name_from(behaveable)
+    def extract(behaveable: nil, resource: nil, format: :html)
+      location_url = location_url(behaveable: behaveable, resource: resource)
+      return regular(location_url: location_url, resource: resource, format: format) unless behaveable
 
-      location_url = "#{resource_name}_url"
-      return regular(location_url, resource) unless behaveable
-
-      location_url = "#{behaveable_name}_#{resource_name}_url"
-      nested(location_url, behaveable, resource)
+      location_url = location_url(behaveable: behaveable, resource: resource)
+      nested(location_url: location_url, behaveable: behaveable, resource: resource, format: format)
     end
 
     private
+
+    def location_url(behaveable: nil, resource: nil)
+      resource_name   = resource_name_from(resource)
+      behaveable_name = behaveable_name_from(behaveable)
+
+      return "#{resource_name}_url" unless behaveable
+
+      "#{behaveable_name}_#{resource_name}_url"
+    end
 
     # Handle non-nested url location.
     #
@@ -31,10 +37,10 @@ module Behaveable
     #
     # ==== Returns
     # * <tt>Route</tt> - Url location.
-    def regular(location_url, resource)
-      return send(location_url) unless resource
+    def regular(location_url:, resource:, format: :html)
+      return send(location_url, format: format) unless resource
 
-      send(location_url, resource)
+      send(location_url, resource, format: format)
     end
 
     # Handle nested url location.
@@ -46,10 +52,10 @@ module Behaveable
     #
     # ==== Returns
     # * <tt>Route</tt> - Url location.
-    def nested(location_url, behaveable, resource)
-      return send(location_url, behaveable) unless resource
+    def nested(location_url:, behaveable:, resource:, format: :html)
+      return send(location_url, behaveable, format: format) unless resource
 
-      send(location_url, behaveable, resource)
+      send(location_url, behaveable, resource, format: format)
     end
 
     # Get resource name from params.
@@ -59,8 +65,8 @@ module Behaveable
     #
     # ==== Returns
     # * <tt>String</tt> - Resource name (singular or plural).
-    def resource_name_from(params)
-      inflection = params[:id].present? ? "singular" : "plural"
+    def resource_name_from(resource)
+      inflection = resource&.id ? "singular" : "plural"
       params[:controller].split("/").last.send("#{inflection}ize")
     end
 

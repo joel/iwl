@@ -11,29 +11,35 @@ class ImagesController < ApplicationController
     @images = imageable.all
 
     respond_to do |format|
-      format.html { render :index, status: :ok, location: extract(@behaveable) }
-      format.json { render json: @images, status: :ok, location: extract(@behaveable) }
+      format.html { render :index, status: :ok, location: extract(behaveable: @behaveable) }
+      format.json { render json: @images, status: :ok, location: extract(behaveable: @behaveable) }
     end
   end
 
   # GET /images/1 or /images/1.json
   def show
     respond_to do |format|
-      format.html { render :show, status: :ok, location: extract(@behaveable, @image) }
-      format.json { render json: @image, status: :ok, location: extract(@behaveable, @image) }
+      format.html { render :show, status: :ok, location: extract(behaveable: @behaveable, resource: @image) }
+      format.json { render json: @image, status: :ok, location: extract(behaveable: @behaveable, resource: @image) }
     end
   end
 
   # GET /images/new
   def new
     @image = imageable.new
+    respond_to do |format|
+      format.html { render :new, status: :ok, location: extract(behaveable: @behaveable, resource: @image) }
+      format.json { render json: @image, status: :ok, location: extract(behaveable: @behaveable, resource: @image) }
+    end
   end
 
   # GET /images/1/edit
   def edit
     respond_to do |format|
-      format.html { render :show, status: :ok, location: extract(@behaveable, @image) }
-      format.json { render json: @image, status: :ok, location: extract(@behaveable, @image) }
+      format.html { render :edit, status: :ok, location: "edit_#{extract(behaveable: @behaveable, resource: @image)}" }
+      format.json do
+        render json: @image, status: :ok, location: "edit_#{extract(behaveable: @behaveable, resource: @image)}"
+      end
     end
   end
 
@@ -48,11 +54,20 @@ class ImagesController < ApplicationController
       @image.transaction do
         if @image.save
           imageable << @image if @behaveable
-          format.html { redirect_to extract(@behaveable), notice: "Image was successfully created." }
-          format.json { render json: @image, status: :created }
+          format.html do
+            redirect_to extract(behaveable: @behaveable, resource: @image), notice: "Image was successfully created."
+          end
+          format.json do
+            render json: @image, status: :created, location: extract(behaveable: @behaveable, resource: @image)
+          end
         else
-          format.html { render :new, status: :unprocessable_entity }
-          format.json { render json: @image.errors, status: :unprocessable_entity }
+          format.html do
+            render :new, status: :unprocessable_entity, location: extract(behaveable: @behaveable, resource: @image)
+          end
+          format.json do
+            render json: @image.errors, status: :unprocessable_entity,
+                   location: extract(behaveable: @behaveable, resource: @image)
+          end
         end
       end
     end
@@ -62,14 +77,22 @@ class ImagesController < ApplicationController
   # rubocop:enable Metrics/MethodLength
 
   # PATCH/PUT /images/1 or /images/1.json
-  def update
+  def update # rubocop:disable Metrics/MethodLength
     respond_to do |format|
       if @image.update(image_params)
-        format.html { redirect_to @image, notice: "Image was successfully updated." }
-        format.json { render :show, status: :ok, location: @image }
+        format.html do
+          redirect_to extract(behaveable: @behaveable, resource: @image), notice: "Image was successfully updated."
+        end
+        format.json { render :edit, status: :ok, location: extract(behaveable: @behaveable, resource: @image) }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @image.errors, status: :unprocessable_entity }
+        format.html do
+          render :edit, status: :unprocessable_entity,
+                        location: "edit_#{extract(behaveable: @behaveable, resource: @image)}"
+        end
+        format.json do
+          render json: @image.errors, status: :unprocessable_entity,
+                 location: "edit_#{extract(behaveable: @behaveable, resource: @image)}"
+        end
       end
     end
   end
@@ -78,8 +101,8 @@ class ImagesController < ApplicationController
   def destroy
     @image.destroy
     respond_to do |format|
-      format.html { redirect_to images_url, notice: "Image was successfully destroyed." }
-      format.json { head :no_content }
+      format.html { redirect_to extract(behaveable: @behaveable), notice: "Image was successfully destroyed." }
+      format.json { head :no_content, location: extract(behaveable: @behaveable) }
     end
   end
 

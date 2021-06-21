@@ -8,6 +8,7 @@ require "rails/test_help"
 Dir[Rails.root.join("test/support/**/*.rb")].each { |f| require f }
 
 require "minitest/autorun"
+require "minitest/focus"
 
 require "rr"
 RR.debug = true

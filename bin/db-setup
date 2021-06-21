@@ -24,8 +24,8 @@ fi
 docker container ls | grep ${SERVICE_NAME}-${PF_TARGET}-app 1> /dev/null
 if [[ $? = 1 ]]; then
   echo "Starting container for [${PF_TARGET}]..."
-  ./bin/docker-command ${PF_TARGET} "bin/rails db:create db:migrate db:seed"
+  ./bin/docker-command ${PF_TARGET} "bin/rails db:setup"
 else
   echo "Connecting to container for [${PF_TARGET}]...."
-  docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c 'bin/rails db:create db:migrate db:seed'
+  docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c 'bin/rails db:setup'
 fi

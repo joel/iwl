@@ -53,7 +53,10 @@ class ImagesController < ApplicationController
     respond_to do |format|
       @image.transaction do
         if @image.save
-          imageable << @image if @behaveable
+          # imageable << @image if @behaveable
+
+          @image.attachments.attach(params[:image][:attachments]) if params[:image][:attachments]
+
           format.html do
             redirect_to extract(behaveable: @behaveable, resource: @image), notice: "Image was successfully created."
           end
@@ -124,6 +127,9 @@ class ImagesController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def image_params
-    params.require(:image).permit(:name)
+    params.require(:image).permit(
+      :name,
+      :attachments
+    )
   end
 end

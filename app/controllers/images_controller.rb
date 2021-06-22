@@ -19,8 +19,8 @@ class ImagesController < ApplicationController
   # GET /images/1 or /images/1.json
   def show
     respond_to do |format|
-      format.html { render :show, status: :ok, location: extract(behaveable: @behaveable, resource: @image) }
-      format.json { render json: @image, status: :ok, location: extract(behaveable: @behaveable, resource: @image) }
+      format.html { render :show, status: :ok, location: polymorphic_url([@behaveable, @image]) }
+      format.json { render json: @image, status: :ok, location: polymorphic_url([@behaveable, @image]) }
     end
   end
 
@@ -28,8 +28,8 @@ class ImagesController < ApplicationController
   def new
     @image = imageable.new
     respond_to do |format|
-      format.html { render :new, status: :ok, location: extract(behaveable: @behaveable, resource: @image) }
-      format.json { render json: @image, status: :ok, location: extract(behaveable: @behaveable, resource: @image) }
+      format.html { render :new, status: :ok, location: polymorphic_url([@behaveable, @image]) }
+      format.json { render json: @image, status: :ok, location: polymorphic_url([@behaveable, @image]) }
     end
   end
 
@@ -58,18 +58,18 @@ class ImagesController < ApplicationController
           @image.attachment.attach(params[:image][:attachment]) if params[:image][:attachment]
 
           format.html do
-            redirect_to extract(behaveable: @behaveable, resource: @image), notice: "Image was successfully created."
+            redirect_to polymorphic_url([@behaveable, @image]), notice: "Image was successfully created."
           end
           format.json do
-            render json: @image, status: :created, location: extract(behaveable: @behaveable, resource: @image)
+            render json: @image, status: :created, location: polymorphic_url([@behaveable, @image])
           end
         else
           format.html do
-            render :new, status: :unprocessable_entity, location: extract(behaveable: @behaveable, resource: @image)
+            render :new, status: :unprocessable_entity, location: polymorphic_url([@behaveable, @image])
           end
           format.json do
             render json: @image.errors, status: :unprocessable_entity,
-                   location: extract(behaveable: @behaveable, resource: @image)
+                   location: polymorphic_url([@behaveable, @image])
           end
         end
       end
@@ -84,17 +84,17 @@ class ImagesController < ApplicationController
     respond_to do |format|
       if @image.update(image_params)
         format.html do
-          redirect_to extract(behaveable: @behaveable, resource: @image), notice: "Image was successfully updated."
+          redirect_to polymorphic_url([@behaveable, @image]), notice: "Image was successfully updated."
         end
-        format.json { render :edit, status: :ok, location: extract(behaveable: @behaveable, resource: @image) }
+        format.json { render :edit, status: :ok, location: polymorphic_url([@behaveable, @image]) }
       else
         format.html do
           render :edit, status: :unprocessable_entity,
-                        location: extract(behaveable: @behaveable, resource: @image)
+                        location: polymorphic_url([@behaveable, @image])
         end
         format.json do
           render json: @image.errors, status: :unprocessable_entity,
-                 location: extract(behaveable: @behaveable, resource: @image)
+                 location: polymorphic_url([@behaveable, @image])
         end
       end
     end

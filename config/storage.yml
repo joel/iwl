@@ -32,3 +32,24 @@ amazon:
 #   service: Mirror
 #   primary: local
 #   mirrors: [ amazon, google, microsoft ]
+
+
+# amazon_west_coast:
+#   service: S3
+#   access_key_id: ""
+#   secret_access_key: ""
+#   region: ""
+#   bucket: ""
+
+# amazon_east_coast:
+#   service: S3
+#   access_key_id: ""
+#   secret_access_key: ""
+#   region: ""
+#   bucket: ""
+
+# production:
+#   service: Mirror
+#   primary: amazon_east_coast
+#   mirrors:
+#     - amazon_west_coast

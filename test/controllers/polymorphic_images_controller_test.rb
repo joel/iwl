@@ -13,7 +13,7 @@ class PolymorphicImagesControllerTest < ActionDispatch::IntegrationTest
     context "with an image" do
       context "html" do
         it "should get index" do
-          get user_images_url(user_id: @user.id, format: :html)
+          get user_images_url(user_id: @user.id)
           assert_response :success
           assert_match @image.name, @response.body
         end
@@ -31,7 +31,7 @@ class PolymorphicImagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get new" do
-    get new_user_image_url(user_id: @user.id, format: :html)
+    get new_user_image_url(user_id: @user.id)
     assert_response :success
     assert_match %r{^http://www.example.com/users/(\d+)/images/new}, @request.url
   end
@@ -41,7 +41,7 @@ class PolymorphicImagesControllerTest < ActionDispatch::IntegrationTest
       post user_images_url(user_id: @user.id), params: { image: { name: @image.name } }
     end
 
-    assert_redirected_to user_image_url(user_id: @user.id, id: Image.last.id, format: :html)
+    assert_redirected_to user_image_url(user_id: @user.id, id: Image.last.id)
   end
 
   test "should show image" do
@@ -58,7 +58,7 @@ class PolymorphicImagesControllerTest < ActionDispatch::IntegrationTest
 
   test "should update image" do
     patch user_image_url(@user, @image), params: { image: { name: @image.name } }
-    assert_redirected_to user_image_url(@user, @image, format: :html)
+    assert_redirected_to user_image_url(@user, @image)
   end
 
   test "should destroy image" do
@@ -66,6 +66,6 @@ class PolymorphicImagesControllerTest < ActionDispatch::IntegrationTest
       delete user_image_url(@user, @image)
     end
 
-    assert_redirected_to user_images_url(@user, format: :html)
+    assert_redirected_to user_images_url(@user)
   end
 end

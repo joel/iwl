@@ -13,7 +13,7 @@ class ImagesHelperTest < ActionDispatch::IntegrationTest # rubocop:disable Metri
         mock(self).location_url(resource_name: resource_name, action: nil, behaveable: nil, resource: nil) do
           location_url
         end
-        mock(self).regular(location_url: location_url, resource: nil, format: :html)
+        mock(self).regular(location_url: location_url, resource: nil)
 
         nested_helper_url(resource_name: resource_name, behaveable: nil)
       end
@@ -29,7 +29,7 @@ class ImagesHelperTest < ActionDispatch::IntegrationTest # rubocop:disable Metri
                                 resource: resource) do
           location_url
         end
-        mock(self).nested(location_url: location_url, behaveable: behaveable, resource: resource, format: :html)
+        mock(self).nested(location_url: location_url, behaveable: behaveable, resource: resource)
 
         nested_helper_url(resource_name: resource_name, behaveable: behaveable)
       end
@@ -44,7 +44,7 @@ class ImagesHelperTest < ActionDispatch::IntegrationTest # rubocop:disable Metri
     context "without resource" do
       test "should render route helper url" do
         behaveable = stub
-        mock(self).somewhere_url(behaveable, format: :html) { "/users/42/images" }
+        mock(self).somewhere_url(behaveable) { "/users/42/images" }
         assert_equal "/users/42/images", send(:nested, location_url: @location_url, behaveable: behaveable)
       end
     end
@@ -53,7 +53,7 @@ class ImagesHelperTest < ActionDispatch::IntegrationTest # rubocop:disable Metri
       test "with resource" do
         resource   = stub
         behaveable = stub
-        mock(self).somewhere_url(behaveable, resource, format: :html) { "/users/42/images/24" }
+        mock(self).somewhere_url(behaveable, resource) { "/users/42/images/24" }
 
         assert_equal "/users/42/images/24",
                      send(:nested, location_url: @location_url, behaveable: behaveable, resource: resource)
@@ -68,7 +68,7 @@ class ImagesHelperTest < ActionDispatch::IntegrationTest # rubocop:disable Metri
 
     context "without resource" do
       test "should render route helper url" do
-        mock(self).somewhere_url(format: :html) { "/images" }
+        mock(self).somewhere_url { "/images" }
         assert_equal "/images", send(:regular, location_url: @location_url)
       end
     end
@@ -76,7 +76,7 @@ class ImagesHelperTest < ActionDispatch::IntegrationTest # rubocop:disable Metri
     context "with resource" do
       test "with resource" do
         resource = stub
-        mock(self).somewhere_url(resource, format: :html) { "/images/42" }
+        mock(self).somewhere_url(resource) { "/images/42" }
 
         assert_equal "/images/42", send(:regular, location_url: @location_url, resource: resource)
       end

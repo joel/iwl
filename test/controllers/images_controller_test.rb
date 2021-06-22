@@ -66,7 +66,7 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
       post images_url, params: { image: { name: @image.name } }
     end
 
-    assert_redirected_to image_url(Image.last, format: :html)
+    assert_redirected_to image_url(Image.last)
   end
 
   test "should show image" do
@@ -81,7 +81,7 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
 
   test "should update image" do
     patch image_url(@image), params: { image: { name: @image.name } }
-    assert_redirected_to image_url(@image, format: :html)
+    assert_redirected_to image_url(@image)
   end
 
   test "should destroy image" do
@@ -89,6 +89,6 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
       delete image_url(@image)
     end
 
-    assert_redirected_to images_url(format: :html)
+    assert_redirected_to images_url
   end
 end

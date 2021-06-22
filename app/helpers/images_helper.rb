@@ -3,26 +3,26 @@
 module ImagesHelper
   class RouteHelperError < StandardError; end
 
-  def nested_helper_url(resource_name:, action: nil, behaveable: nil, resource: nil, format: :html)
+  def nested_helper_url(resource_name:, action: nil, behaveable: nil, resource: nil)
     location_url = location_url(resource_name: resource_name, action: action, behaveable: behaveable,
                                 resource: resource)
-    return regular(location_url: location_url, resource: resource, format: format) unless behaveable
+    return regular(location_url: location_url, resource: resource) unless behaveable
 
-    nested(location_url: location_url, behaveable: behaveable, resource: resource, format: format)
+    nested(location_url: location_url, behaveable: behaveable, resource: resource)
   end
 
   private
 
-  def regular(location_url:, resource: nil, format: :html)
-    return send(location_url, format: format) unless resource
+  def regular(location_url:, resource: nil)
+    return send(location_url) unless resource
 
-    send(location_url, resource, format: format)
+    send(location_url, resource)
   end
 
-  def nested(location_url:, behaveable:, resource: nil, format: :html)
-    return send(location_url, behaveable, format: format) unless resource
+  def nested(location_url:, behaveable:, resource: nil)
+    return send(location_url, behaveable) unless resource
 
-    send(location_url, behaveable, resource, format: format)
+    send(location_url, behaveable, resource)
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity

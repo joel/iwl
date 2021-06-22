@@ -10,12 +10,12 @@ module Behaveable
     #
     # ==== Returns
     # * <tt>Route</tt> - Url location.
-    def extract(behaveable: nil, resource: nil, format: :html)
+    def extract(behaveable: nil, resource: nil)
       location_url = location_url(behaveable: behaveable, resource: resource)
-      return regular(location_url: location_url, resource: resource, format: format) unless behaveable
+      return regular(location_url: location_url, resource: resource) unless behaveable
 
       location_url = location_url(behaveable: behaveable, resource: resource)
-      nested(location_url: location_url, behaveable: behaveable, resource: resource, format: format)
+      nested(location_url: location_url, behaveable: behaveable, resource: resource)
     end
 
     private
@@ -44,10 +44,10 @@ module Behaveable
     #
     # ==== Returns
     # * <tt>Route</tt> - Url location.
-    def regular(location_url:, resource:, format: :html)
-      return send(location_url, format: format) if resource.nil? || resource.id.nil?
+    def regular(location_url:, resource:)
+      return send(location_url) if resource.nil? || resource.id.nil?
 
-      send(location_url, resource, format: format)
+      send(location_url, resource)
     end
 
     # Handle nested url location.
@@ -59,10 +59,10 @@ module Behaveable
     #
     # ==== Returns
     # * <tt>Route</tt> - Url location.
-    def nested(location_url:, behaveable:, resource:, format: :html)
-      return send(location_url, behaveable, format: format) if resource.nil? || resource.id.nil?
+    def nested(location_url:, behaveable:, resource:)
+      return send(location_url, behaveable) if resource.nil? || resource.id.nil?
 
-      send(location_url, behaveable, resource, format: format)
+      send(location_url, behaveable, resource)
     end
 
     # Get resource name from params.

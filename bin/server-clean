@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+echo "Clean tmp dir" && \
+bin/erails tmp:clear && \
+echo "Clean log dir" && \
+bin/erails log:clear

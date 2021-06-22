@@ -43,8 +43,8 @@ gem "amazing_print"
 gem "rails_semantic_logger"
 
 gem "aws-sdk-s3"
-gem "image_processing"
-gem "mini_magick"
+# gem "image_processing"
+gem "mini_magick" # replaced by image_processing in Rails 6
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

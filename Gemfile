@@ -46,6 +46,10 @@ gem "aws-sdk-s3"
 # gem "image_processing"
 gem "mini_magick" # replaced by image_processing in Rails 6
 
+group :development, :production do
+  gem "sidekiq"
+end
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem "byebug", platforms: %i[mri mingw x64_mingw]

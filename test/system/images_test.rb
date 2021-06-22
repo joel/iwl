@@ -17,7 +17,7 @@ class ImagesTest < ApplicationSystemTestCase
     click_on "New Image"
 
     fill_in "Name", with: @image.name
-    click_on "Create Image"
+    click_on "Save"
 
     assert_text "Image was successfully created"
     click_on "Back"
@@ -28,7 +28,7 @@ class ImagesTest < ApplicationSystemTestCase
     click_on "Edit", match: :first
 
     fill_in "Name", with: @image.name
-    click_on "Update Image"
+    click_on "Save"
 
     assert_text "Image was successfully updated"
     click_on "Back"

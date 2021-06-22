@@ -17,8 +17,8 @@
         <td><%= user.name %></td>
 
         <td>
-          <% if user.images.present? %>
-            <%= image_tag url_for(users.images.first.attachment.variant(resize: "50x50").processed) %>
+          <% if user.images.present? && user.images.first.attachment.attached? %>
+            <%= image_tag url_for(user.images.first.attachment.variant(resize: "50x50").processed) %>
           <% else %>
             No Pics
           <% end %>

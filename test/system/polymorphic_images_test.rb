@@ -2,15 +2,24 @@
 
 require "application_system_test_case"
 
-class ImagesTest < ApplicationSystemTestCase
+class PolymorphicImagesTest < ApplicationSystemTestCase
   setup do
     @user = create(:user)
     @image = create(:image)
     @user.images << @image
   end
 
+  test "add image" do
+    visit users_url
+    assert_selector "h1", text: "Users"
+
+    click_on "Add Image", match: :first
+    fill_in "Name", with: @image.name
+    attach_file "image_attachment", Rails.root.join("test/fixtures/favicon.ico")
+  end
+
   test "visiting the index" do
-    visit user_images_url(@user)
+    visit user_images_url(user_id: @user)
     assert_selector "h1", text: "Images"
   end
 

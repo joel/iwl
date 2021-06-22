@@ -63,10 +63,14 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create image" do
     assert_difference("Image.count") do
-      post images_url, params: { image: { name: @image.name } }
+      post images_url,
+           params: { image: { name: @image.name,
+                              attachment: fixture_file_upload("test/fixtures/favicon.ico",
+                                                              "image/vnd.microsoft.icon") } }
     end
 
     assert_redirected_to image_url(Image.last)
+    assert_equal "favicon.ico", Image.last.attachment.filename.to_s
   end
 
   test "should show image" do

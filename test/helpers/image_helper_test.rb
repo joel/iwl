@@ -53,6 +53,7 @@ class ImagesHelperTest < ActionDispatch::IntegrationTest # rubocop:disable Metri
       test "with resource" do
         resource   = stub
         behaveable = stub
+        # mock(resource).id { nil }
         mock(self).somewhere_url(behaveable, resource) { "/users/42/images/24" }
 
         assert_equal "/users/42/images/24",

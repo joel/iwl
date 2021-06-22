@@ -1,4 +1,5 @@
-<%= form_with(url: polymorphic_url([@behaveable, image]), local: true) do |form| %>
+<% method = image.persisted? ? :patch : :post %>
+<%= form_with(scope: :image, url: polymorphic_url([@behaveable, image]), method: method, local: true) do |form| %>
   <% if image.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(image.errors.count, "error") %> prohibited this image from being saved:</h2>

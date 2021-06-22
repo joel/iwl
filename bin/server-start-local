@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+bin/server-clean && \
+echo "Start Local Server" && \
+bin/erails server -p 3000 --early-hints

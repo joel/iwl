@@ -22,6 +22,8 @@ module ImagesHelper
   def nested(location_url:, behaveable:, resource: nil)
     return send(location_url, behaveable) unless resource
 
+    # action = resource_persisted?(resource) ? :update : :create
+    # send(location_url, behaveable, resource, action: action)
     send(location_url, behaveable, resource)
   end
 

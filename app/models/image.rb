@@ -3,5 +3,5 @@
 class Image < ApplicationRecord
   has_many :imageations, dependent: :destroy
 
-  has_one_attached :attachment
+  has_one_attached :attachment, dependent: :destroy
 end

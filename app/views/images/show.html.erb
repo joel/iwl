@@ -6,7 +6,7 @@
 </p>
 
 <% if @image.attachment.attached? %>
-  <%= image_tag url_for(@image.attachment) %>
+  <%= image_tag url_for(@image.attachment.variant(resize: "200x200").processed) %>
 <% else %>
   No Attachment
 <% end %>

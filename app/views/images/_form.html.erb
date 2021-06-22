@@ -1,4 +1,5 @@
-<%= form_with(model: image, local: true, format: :html) do |form| %>
+<% action = image.persisted? ? :edit : :new %>
+<%= form_with(model: image, url: nested_helper_url(action: action, resource_name: "images", behaveable: @behaveable, resource: image), local: true) do |form| %>
   <% if image.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(image.errors.count, "error") %> prohibited this image from being saved:</h2>

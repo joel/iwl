@@ -13,7 +13,14 @@ RUN apt-get update -qq && \
     apt-get install -y build-essential \
     libpq-dev \
     nodejs \
-    && rm -rf /var/lib/apt/lists/*
+    imagemagick \
+    && apt-get clean autoclean \
+    && apt-get autoremove -y \
+    && rm -rf \
+    /var/lib/apt \
+    /var/lib/dpkg \
+    /var/lib/cache \
+    /var/lib/log
 
 ENV BUNDLE_PATH /bundle
 ENV GEM_HOME /bundle

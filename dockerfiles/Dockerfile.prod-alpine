@@ -21,7 +21,8 @@ RUN apk add --no-cache --update build-base \
   mariadb-dev \
   nodejs \
   python2 \
-  tzdata
+  tzdata \
+  imagemagick
 
 ENV BUNDLE_PATH /bundle
 ENV GEM_HOME /bundle

@@ -1,5 +1,6 @@
 ARG ARG_RUBY_VERSION
 
+# "Debian GNU/Linux 10 (buster)"
 FROM ruby:${ARG_RUBY_VERSION}
 
 ARG ARG_BUNDLER_VERSION
@@ -12,6 +13,7 @@ RUN apt-get update -qq && \
     libpq-dev \
     nodejs \
     curl \
+    imagemagick \
     && apt-get clean autoclean \
     && apt-get autoremove -y \
     && rm -rf \

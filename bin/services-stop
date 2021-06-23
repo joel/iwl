@@ -2,6 +2,23 @@
 
 source ./bin/init-env
 
-./bin/redis-stop "$@" & \
-./bin/db-stop "$@" & \
-./bin/sidekiq-stop "$@"
+./bin/docker-check
+if [[ $? = 1 ]]; then
+  exit 1
+fi
+
+if [ $# -gt 0 ]
+  then
+    echo "./bin/services-stop does not take arguments"
+    exit 1
+fi
+
+echo "Stopping services...."
+
+./bin/redis-stop & \
+./bin/db-stop
+
+docker container ls | grep ${SERVICE_NAME}-sidekiq 1> /dev/null
+if [[ $? = 0 ]]; then
+  echo "stop sidekiq as well ./bin/sidekiq-stop{prod|dev}"
+fi

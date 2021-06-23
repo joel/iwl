@@ -7,6 +7,28 @@ if [[ $? = 1 ]]; then
   exit 1
 fi
 
+if [ $# -eq 0 ]
+  then
+    echo "Starting services in private mode"
+    echo "You can forward the services"
+    echo "e.g bin/services-start --publish"
+fi
+
+PF_TARGET="${1}"
+
+POSSIBLE_VALUES=("--publish")
+
+if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
+  echo "forwarding services need [--publish] options"
+  exit 1
+else
+  echo "forwarding services...."
+fi
+
 ./bin/redis-start "$@" & \
-./bin/db-start "$@" & \
-./bin/sidekiq-start "$@"
+./bin/db-start "$@"
+
+docker container ls | grep ${SERVICE_NAME}-${PF_TARGET}-sidekiq 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "start sidekiq as well ./bin/sidekiq-start{prod|dev}"
+fi

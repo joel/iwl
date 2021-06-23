@@ -93,3 +93,8 @@ else
   docker exec ${SERVICE_NAME}-redis bash -c "redis-cli -h 127.0.0.1 -p 6379 FLUSHALL" && \
   echo "Server running: http://localhost:${SERVER_PUBLISHED_PORT}"
 fi
+
+docker container ls | grep ${SERVICE_NAME}-${PF_TARGET}-sidekiq 1> /dev/null
+if [[ $? = 1 ]]; then
+  ./bin/sidekiq-start ${PF_TARGET}
+fi

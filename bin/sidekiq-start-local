@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+echo "Start Local Sidekiq" && \
+export HOST_URL=127.0.0.1 && \
+export DB_HOST=${HOST_URL} && \
+export DB_PORT=${DB_PUBLISHED_PORT} && \
+export DB_POOL=${DB_POOL} && \
+export DB_USER=${DB_USER} && \
+export DB_PASSWORD=${DB_PASSWORD} && \
+export RAILS_LOG_TO_STDOUT=${RAILS_LOG_TO_STDOUT} && \
+export LOG_LEVEL=${LOG_LEVEL} && \
+export LOG_APPENDER=${LOG_APPENDER} && \
+export REDIS_URL=redis://${HOST_URL}:${REDIS_PUBLISHED_PORT}/1 && \
+bundle exec sidekiq -C config/sidekiq.yml

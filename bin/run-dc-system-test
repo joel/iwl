@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+docker-compose run --rm wait-middleware
+
+docker-compose run --rm \
+  -e DB_PORT=3306 \
+  -e DB_USER=${DB_USER} \
+  -e DB_PASSWORD=${DB_PASSWORD} \
+  -e CHROME_HEADLESS=true \
+  console bash -c "RAILS_ENV=test bin/rails test:system"

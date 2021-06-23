@@ -4,7 +4,7 @@
   <strong>Name:</strong>
   <%= @post.name %>
   <% if @post.header_picture.attached? %>
-    <%= image_tag url_for(@post.header_picture.variant(resize: "500x500").processed) %>
+    <%= image_tag url_for(@post.header_picture.variant(resize: "500x500").processed), class: "image-#{@post.id}" %>
 
     <%= form_for @post do |f| %>
       <%= f.fields_for :header_picture_attachment_attributes do |header_picture_form| %>

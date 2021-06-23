@@ -14,7 +14,21 @@ services:
       - redis-data:/data
 
   selenium:
-    image: selenium/standalone-chrome
+    image: selenium/hub
+    container_name: myapp-selenium
+    ports:
+      - 4444:4444
+    environment:
+     GRID_MAX_SESSION: 10
+
+  chrome:
+    image: selenium/node-chrome
+    depends_on:
+      - selenium
+    environment:
+     HUB_HOST: myapp-selenium
+     NODE_MAX_INSTANCES: 5
+     NODE_MAX_SESSION: 5
 
   base: &base
     build:
@@ -43,7 +57,7 @@ services:
     depends_on:
       - db
       - redis
-      - selenium
+      - chrome
     command: /wait
 
   backend: &backend
@@ -53,8 +67,7 @@ services:
       - REDIS_URL=redis://redis:6379/1
       - BUNDLE_PATH=/bundle
       - GEM_HOME=/bundle
-      - SELENIUM_REMOTE_HOST=selenium
-      - HUB_URL=http://selenium:4444/wd/hub
+      - HUB_URL=http://myapp-selenium:4444/wd/hub
     stdin_open: true
     tty: true
     volumes:
@@ -63,7 +76,7 @@ services:
     depends_on:
       - db
       - redis
-      - selenium
+      - chrome
 
   console:
     <<: *backend

@@ -33,3 +33,10 @@ if [[ $? = 1 ]]; then
 else
   echo "Server Prod Started..."
 fi
+
+docker container ls | grep ${SERVICE_NAME}-${SERVICE_ENV}-sidekiq 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Sidekiq stop!"
+else
+  echo "Sidekiq started..."
+fi

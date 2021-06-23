@@ -72,4 +72,4 @@ docker run --rm \
   --env LOG_APPENDER=${LOG_APPENDER} \
   --network ${SERVICE_NAME}-bridge-docker-network \
   --mount type=bind,source=$PWD,target=${ARG_APP_PATH} \
-  ${SERVICE_NAME}/${SERVICE_ENV}:latest sh -c "${CMD}"
+  ${SERVICE_NAME}/${SERVICE_ENV}:latest sh -c "RAILS_ENV=${FULL_SERVICE_ENV} ${CMD}"

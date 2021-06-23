@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+docker network ls | grep ${SERVICE_NAME}-bridge-docker-network 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Missing Network!, please run ./bin/docker-setup"
+  exit 1
+fi
+
+volumes=(
+  ${SERVICE_NAME}-db-data
+  ${SERVICE_NAME}-redis-data
+)
+
+for volume in "${volumes[@]}"
+do
+  docker volume ls | grep ${volume} 1> /dev/null
+  if [[ $? = 1 ]]; then
+    echo "Missing volume [${volume}]!, please run ./bin/docker-setup"
+    exit 1
+  fi
+done

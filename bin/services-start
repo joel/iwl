@@ -2,5 +2,11 @@
 
 source ./bin/init-env
 
+./bin/docker-check
+if [[ $? = 1 ]]; then
+  exit 1
+fi
+
 ./bin/redis-start "$@" & \
-./bin/db-start "$@"
+./bin/db-start "$@" & \
+./bin/sidekiq-start "$@"

@@ -2,5 +2,6 @@
 
 source ./bin/init-env
 
-./bin/redis-stop & \
-./bin/db-stop
+./bin/redis-stop "$@" & \
+./bin/db-stop "$@" & \
+./bin/sidekiq-stop "$@"

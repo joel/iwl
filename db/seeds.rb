@@ -14,5 +14,5 @@ if defined?(FactoryBot)
     print "." # rubocop:disable Rails/Output
   end
 else
-  puts("FactoryBot undefined") # rubocop:disable Rails/Output
+  puts("FactoryBot undefined, likely prod env, no seed will be done") # rubocop:disable Rails/Output
 end

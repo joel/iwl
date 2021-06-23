@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+./bin/docker-check
+if [[ $? = 1 ]]; then
+  exit 1
+fi
+
+if [ $# -eq 0 ]
+  then
+    echo "Starting dev sidekiq"
+    echo "You can start either production or development"
+    echo "e.g bin/sidekiq-start dev"
+    echo "e.g bin/sidekiq-start prod"
+fi
+
+PF_TARGET="${1:-dev}"
+
+POSSIBLE_VALUES=("prod" "dev")
+
+if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
+  echo "target should be either: prod or dev"
+  exit 1
+fi
+
+docker container ls | grep ${SERVICE_NAME}-${PF_TARGET}-sidekiq 1> /dev/null
+if [[ $? = 0 ]]; then
+  echo "Sidekiq [${PF_TARGET}] Started!"
+  exit 0
+fi
+
+case "${PF_TARGET}" in
+  'prod')
+    FULL_SERVICE_ENV='production'
+    SERVICE_ENV='prod'
+    SERVER_PUBLISHED_PORT=${PROD_SERVER_PUBLISHED_PORT}
+
+    echo "Starting sidekiq [${PF_TARGET}]..."
+    docker run --rm --detach \
+      --name ${SERVICE_NAME}-${SERVICE_ENV}-sidekiq \
+      --env RAILS_LOG_TO_STDOUT=${RAILS_LOG_TO_STDOUT} \
+      --env LOG_LEVEL=${LOG_LEVEL} \
+      --env LOG_APPENDER=${LOG_APPENDER} \
+      --network ${SERVICE_NAME}-bridge-docker-network \
+      --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
+      --env DATABASE_URL=mysql2://${DB_USER}:${DB_PASSWORD}@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_${FULL_SERVICE_ENV} \
+      ${SERVICE_NAME}/${SERVICE_ENV}:latest bash -c 'bundle exec sidekiq -C config/sidekiq.yml' > /dev/null 2>&1
+  ;;
+  'dev')
+    FULL_SERVICE_ENV='development'
+    SERVICE_ENV='dev'
+    SERVER_PUBLISHED_PORT=${DEV_SERVER_PUBLISHED_PORT}
+
+    echo "Starting sidekiq [${PF_TARGET}]..."
+    docker run --rm --detach \
+      --name ${SERVICE_NAME}-${SERVICE_ENV}-sidekiq \
+      --env RAILS_LOG_TO_STDOUT=${RAILS_LOG_TO_STDOUT} \
+      --env LOG_LEVEL=${LOG_LEVEL} \
+      --env LOG_APPENDER=${LOG_APPENDER} \
+      --network ${SERVICE_NAME}-bridge-docker-network \
+      --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
+      --env DATABASE_URL=mysql2://${DB_USER}:${DB_PASSWORD}@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_${FULL_SERVICE_ENV} \
+      --mount type=bind,source=$PWD,target=${ARG_APP_PATH} \
+      ${SERVICE_NAME}/${SERVICE_ENV}:latest bash -c 'bundle exec sidekiq -C config/sidekiq.yml' > /dev/null 2>&1
+  ;;
+esac
+
+sleep 1
+
+docker container ls | grep ${SERVICE_NAME}-${SERVICE_ENV}-sidekiq 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Please rebuild image [${PF_TARGET}]!"
+  echo "bin/docker-build ${PF_TARGET}"
+else
+  echo "Server running: http://localhost:${SERVER_PUBLISHED_PORT}/sidekiq"
+fi

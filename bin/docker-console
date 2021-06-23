@@ -20,40 +20,11 @@ if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
   exit 1
 fi
 
-./bin/services-start
-
-case "${PF_TARGET}" in
-  'prod')
-    SERVICE_ENV='prod'
-  ;;
-  'dev')
-    SERVICE_ENV='dev'
-  ;;
-  'test')
-    SERVICE_ENV='test'
-  ;;
-esac
-
-docker container ls | grep ${SERVICE_NAME}-${SERVICE_ENV}-app 1> /dev/null
+docker container ls | grep ${SERVICE_NAME}-${PF_TARGET}-app 1> /dev/null
 if [[ $? = 1 ]]; then
-  echo "Starting container [${PF_TARGET}]..."
-
-  docker run --rm \
-    --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
-    --env DB_POOL=${DB_POOL} \
-    --env DB_USER=${DB_USER} \
-    --env DB_PASSWORD=${DB_PASSWORD} \
-    --env DB_HOST=${SERVICE_NAME}-db \
-    --env DB_PORT=3306 \
-    --env RAILS_LOG_TO_STDOUT=true \
-    --env LOG_LEVEL=debug \
-    --env LOG_APPENDER=true \
-    --network ${SERVICE_NAME}-bridge-docker-network \
-    --mount type=bind,source=$PWD,target=${ARG_APP_PATH} \
-    -it ${SERVICE_NAME}/${SERVICE_ENV}:latest bash
+  echo "Starting container first!"
+  exit 1
 else
-  echo "Connecting to container [${PF_TARGET}]...."
-
-  docker exec -it ${SERVICE_NAME}-${SERVICE_ENV}-app bash
+  echo "Connecting to container for [${PF_TARGET}]..."
+  docker exec -it ${SERVICE_NAME}-${PF_TARGET}-app bash
 fi
-

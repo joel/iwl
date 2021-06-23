@@ -2,6 +2,17 @@
 
 source ./bin/init-env
 
+./bin/docker-check
+if [[ $? = 1 ]]; then
+  exit 1
+fi
+
+if [[ -f ./tmp/pids/server.pid ]]; then
+  echo "A Server is already running!"
+  echo "Stop server or remove tmp/pids/server.pid"
+  exit 1
+fi
+
 if [ $# -eq 0 ]
   then
     echo "Starting dev server"
@@ -25,13 +36,7 @@ if [[ $? = 0 ]]; then
   exit 0
 fi
 
-./bin/services-start
-
-if [[ -f ./tmp/pids/server.pid ]]; then
-  echo "A Server is already running!"
-  echo "Stop server or remove tmp/pids/server.pid"
-  exit 1
-fi
+./bin/services-start "$@"
 
 case "${PF_TARGET}" in
   'prod')
@@ -63,7 +68,11 @@ case "${PF_TARGET}" in
       --network ${SERVICE_NAME}-bridge-docker-network \
       --publish ${SERVER_PUBLISHED_PORT}:3000 \
       --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
-      --env DATABASE_URL=mysql2://${DB_USER}:${DB_PASSWORD}@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_${FULL_SERVICE_ENV} \
+      --env DB_POOL=${DB_POOL} \
+      --env DB_USER=${DB_USER} \
+      --env DB_PASSWORD=${DB_PASSWORD} \
+      --env DB_HOST=${SERVICE_NAME}-db \
+      --env DB_PORT=3306 \
       --mount type=bind,source=$PWD,target=${ARG_APP_PATH} \
       ${SERVICE_NAME}/${SERVICE_ENV}:latest bash -c 'bin/rails server -p 3000 --early-hints -b 0.0.0.0'
   ;;
@@ -71,17 +80,16 @@ esac
 
 sleep 1
 
-docker container ls | grep ${SERVICE_NAME}-${SERVICE_ENV}-app 1> /dev/null
+docker container ls | grep ${SERVICE_NAME}-${PF_TARGET}-app 1> /dev/null
 if [[ $? = 1 ]]; then
-  echo "Please rebuild image [${PF_TARGET}]!"
+  echo "Please rebuild image [${PF_TARGET}]!" && \
   echo "bin/docker-build ${PF_TARGET}"
 else
   echo "Clean tmp dir" && \
-  docker exec ${SERVICE_NAME}-${SERVICE_ENV}-app bash -c "bin/rails tmp:clear" && \
+  docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c "bin/rails tmp:clear" && \
   echo "Clean log dir" && \
-  docker exec ${SERVICE_NAME}-${SERVICE_ENV}-app bash -c "bin/rails log:clear" && \
+  docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c "bin/rails log:clear" && \
   echo "Redis Flush Cache" && \
-  docker exec ${REDIS_NAME} bash -c "redis-cli -h 127.0.0.1 -p 6379 FLUSHALL"
-
+  docker exec ${SERVICE_NAME}-redis bash -c "redis-cli -h 127.0.0.1 -p 6379 FLUSHALL" && \
   echo "Server running: http://localhost:${SERVER_PUBLISHED_PORT}"
 fi

@@ -24,8 +24,8 @@ fi
 docker container ls | grep ${SERVICE_NAME}-${PF_TARGET}-app 1> /dev/null
 if [[ $? = 1 ]]; then
   echo "Starting container for [${PF_TARGET}]..."
-  ./bin/docker-command ${PF_TARGET} "bin/rails db:setup"
+  ./bin/docker-command ${PF_TARGET} "DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bin/rails db:setup"
 else
   echo "Connecting to container for [${PF_TARGET}]...."
-  docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c 'bin/rails db:setup'
+  docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c 'DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bin/rails db:setup'
 fi

@@ -6,3 +6,13 @@ echo "Clean tmp dir" && \
 bin/erails tmp:clear && \
 echo "Clean log dir" && \
 bin/erails log:clear
+
+REDIS_NAME=${SERVICE_NAME}-redis
+
+docker container ls | grep ${REDIS_NAME} 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Redis Cache NOT Flushed, Redis stopped!"
+else
+  echo "Redis Flush Cache"
+  docker exec ${REDIS_NAME} bash -c "redis-cli -h 127.0.0.1 -p 6379 FLUSHALL"
+fi

@@ -3,5 +3,39 @@
 source ./bin/init-env
 
 docker-compose stop & \
+sleep 1 && \
 yes | docker-compose rm & \
-docker image rm iwl/ci:latest
+sleep 1 && \
+docker image rm iwl/ci:latest > /dev/null 2>&1
+
+images=(
+  iwl-development
+)
+
+for image in "${images[@]}"
+do
+  docker image ls | grep ${image} | grep latest 1> /dev/null
+  if [[ $? = 1 ]]; then
+    echo "image [${image}] removed!"
+  else
+    echo "Removing [${image}]..."
+    docker image rm ${image} 1> /dev/null
+  fi
+done
+
+volumes=(
+  images_furry_db-data
+  images_furry_rails-cache
+  images_furry_redis-data
+)
+
+for volume in "${volumes[@]}"
+do
+  docker volume ls | grep ${volume} 1> /dev/null
+  if [[ $? = 1 ]]; then
+    echo "Volume [${volume}] removed!"
+  else
+    echo "Removing [${volume}]..."
+    docker volume rm ${volume} 1> /dev/null
+  fi
+done

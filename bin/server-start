@@ -76,5 +76,12 @@ if [[ $? = 1 ]]; then
   echo "Please rebuild image [${PF_TARGET}]!"
   echo "bin/docker-build ${PF_TARGET}"
 else
+  echo "Clean tmp dir" && \
+  docker exec ${SERVICE_NAME}-${SERVICE_ENV}-app bash -c "bin/rails tmp:clear" && \
+  echo "Clean log dir" && \
+  docker exec ${SERVICE_NAME}-${SERVICE_ENV}-app bash -c "bin/rails log:clear" && \
+  echo "Redis Flush Cache" && \
+  docker exec ${REDIS_NAME} bash -c "redis-cli -h 127.0.0.1 -p 6379 FLUSHALL"
+
   echo "Server running: http://localhost:${SERVER_PUBLISHED_PORT}"
 fi

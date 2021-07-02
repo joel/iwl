@@ -4,8 +4,11 @@
   <strong>Name:</strong>
   <%= @post.name %>
   <% if @post.header_picture.attached? %>
-    <%= image_tag url_for(@post.header_picture.variant(resize: "500x500").processed), class: "image-#{@post.id}" %>
-
+    <% if @post.header_picture.variable? %>
+      <%= image_tag url_for(@post.header_picture.variant(resize: "500x500").processed), class: "image-#{@post.id}" %>
+    <% else %>
+      <%= image_tag url_for(@post.header_picture), class: "variant-1" %>
+    <% end %>
     <%= form_for @post do |f| %>
       <%= f.fields_for :header_picture_attachment_attributes do |header_picture_form| %>
 	      <%= header_picture_form.hidden_field :id, value: @post.header_picture_attachment.id %>

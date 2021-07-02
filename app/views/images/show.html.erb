@@ -6,10 +6,14 @@
 </p>
 
 <% if @image.attachment.attached? %>
-  <%= image_tag url_for(@image.attachment.variant(resize: "200x200").processed) %>
+  <% if @image.attachment.representable? %>
+    <%= image_tag url_for(@image.attachment.representation(resize: "200x200").processed) %>
+  <% else %>
+    <%= image_tag url_for(@image.attachment), class: "variant-1" %>
+  <% end %>
 <% else %>
   No Attachment
 <% end %>
 
-<%= link_to 'Edit', edit_image_path(@image) %> |
-<%= link_to 'Back', images_path %>
+<%= link_to 'Edit', nested_helper_url(resource_name: "images", action: :edit, behaveable: @behaveable, resource: @image) %> |
+<%= link_to 'Back', nested_helper_url(resource_name: "images", behaveable: @behaveable) %>

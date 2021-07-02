@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+source ./bin/init-env
+
+DB_NAME=${SERVICE_NAME}-db
+REDIS_NAME=${SERVICE_NAME}-redis
+
+docker container ls | grep ${DB_NAME} 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Start DB first!"
+  exit 1
+fi
+
+docker container ls | grep ${REDIS_NAME} 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Start Redis first!"
+  exit 1
+fi

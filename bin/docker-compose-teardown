@@ -6,27 +6,27 @@ docker-compose stop & \
 sleep 1 && \
 yes | docker-compose rm & \
 sleep 1 && \
-docker image rm iwl/ci:latest > /dev/null 2>&1
+docker image rm ${SERVICE_NAME}/ci:${VERSION} > /dev/null 2>&1
 
 images=(
-  iwl-development
+  ${SERVICE_NAME}-development
 )
 
 for image in "${images[@]}"
 do
-  docker image ls | grep ${image} | grep latest 1> /dev/null
+  docker image ls | grep ${image} | grep ${VERSION} 1> /dev/null
   if [[ $? = 1 ]]; then
     echo "image [${image}] removed!"
   else
     echo "Removing [${image}]..."
-    docker image rm ${image} 1> /dev/null
+    docker image rm ${image}:${VERSION} 1> /dev/null
   fi
 done
 
 volumes=(
-  images_furry_db-data
-  images_furry_rails-cache
-  images_furry_redis-data
+  ${DIR_NAME}_db-data
+  ${DIR_NAME}_rails-cache
+  ${DIR_NAME}_redis-data
 )
 
 for volume in "${volumes[@]}"

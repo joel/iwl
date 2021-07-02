@@ -14,11 +14,11 @@ if [ $# -eq 0 ]
     echo "e.g bin/services-start --publish"
 fi
 
-PF_TARGET="${1}"
+ARGS="${1:-none}"
 
-POSSIBLE_VALUES=("--publish")
+POSSIBLE_VALUES=("--publish" "none")
 
-if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${PF_TARGET} " ]]; then
+if [[ ! " ${POSSIBLE_VALUES[@]} " =~ " ${ARGS} " ]]; then
   echo "forwarding services need [--publish] options"
   exit 1
 else

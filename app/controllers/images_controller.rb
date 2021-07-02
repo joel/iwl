@@ -56,7 +56,7 @@ class ImagesController < ApplicationController
           imageable << @image if @behaveable
 
           @image.attachment.attach(params[:image][:attachment]) if params[:image][:attachment]
-          @image.attachment.analyze
+          @image.attachment.analyze if @image.attachment.attached?
 
           format.html do
             redirect_to polymorphic_url([@behaveable, @image]), notice: "Image was successfully created."

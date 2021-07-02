@@ -36,7 +36,17 @@ if [[ $? = 0 ]]; then
   exit 0
 fi
 
-./bin/services-start "$@"
+./bin/services-start
+
+# docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c "bin/rails tmp:clear" && \
+# docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c "bin/rails log:clear" && \
+
+echo "Clean tmp dir" && \
+rm -rf tmp/* && \
+echo "Clean log dir" && \
+rm -rf log/* && \
+echo "Redis Flush Cache" && \
+docker exec ${SERVICE_NAME}-redis bash -c "redis-cli -h 127.0.0.1 -p 6379 FLUSHALL" && \
 
 case "${PF_TARGET}" in
   'prod')
@@ -53,7 +63,7 @@ case "${PF_TARGET}" in
       --publish ${SERVER_PUBLISHED_PORT}:3000 \
       --env REDIS_URL=redis://${SERVICE_NAME}-redis:6379/1 \
       --env DATABASE_URL=mysql2://${DB_USER}:${DB_PASSWORD}@${SERVICE_NAME}-db:3306/${SERVICE_NAME}_${FULL_SERVICE_ENV} \
-      ${SERVICE_NAME}/${SERVICE_ENV}:latest bash -c 'rm -vf ./tmp/pids/server.pid && bin/rails server -p 3000 --early-hints -b 0.0.0.0'
+      ${SERVICE_NAME}/${SERVICE_ENV}:latest bash -c 'bin/rails server -p 3000 --early-hints -b 0.0.0.0'
   ;;
   'dev')
     FULL_SERVICE_ENV='development'
@@ -85,12 +95,12 @@ if [[ $? = 1 ]]; then
   echo "Please rebuild image [${PF_TARGET}]!" && \
   echo "bin/docker-build ${PF_TARGET}"
 else
-  echo "Clean tmp dir" && \
-  docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c "bin/rails tmp:clear" && \
-  echo "Clean log dir" && \
-  docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c "bin/rails log:clear" && \
-  echo "Redis Flush Cache" && \
-  docker exec ${SERVICE_NAME}-redis bash -c "redis-cli -h 127.0.0.1 -p 6379 FLUSHALL" && \
+  # echo "Clean tmp dir" && \
+  # docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c "bin/rails tmp:clear" && \
+  # echo "Clean log dir" && \
+  # docker exec ${SERVICE_NAME}-${PF_TARGET}-app bash -c "bin/rails log:clear" && \
+  # echo "Redis Flush Cache" && \
+  # docker exec ${SERVICE_NAME}-redis bash -c "redis-cli -h 127.0.0.1 -p 6379 FLUSHALL" && \
   echo "Server running: http://localhost:${SERVER_PUBLISHED_PORT}"
 fi
 

@@ -50,6 +50,10 @@ jobs:
 
     - name: Docker build
       run: |
+        docker container ls
+
+    - name: Docker build
+      run: |
         docker-compose build \
           --build-arg BUILDKIT_INLINE_CACHE=1 \
           --build-arg ARG_RUBY_VERSION=${{ matrix.ruby }} \
@@ -57,6 +61,10 @@ jobs:
           --build-arg ARG_APP_PATH=${{ env.ARG_APP_PATH }} \
           --build-arg ARG_RUBYGEMS_VERSION=${{ env.ARG_RUBYGEMS_VERSION }} \
         base
+
+    - name: Docker build
+      run: |
+        docker container ls
 
     - name: Docker tag and save
       if: steps.cache-docker-image.outputs.cache-hit != 'true'
@@ -85,9 +93,17 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-${{ env.IMAGE_CACHE_KEY }}-${{ matrix.ruby }}-
 
+    - name: Docker build
+      run: |
+        docker container ls
+
     - name: Docker load
       if: steps.cache-docker-image.outputs.cache-hit == 'true'
       run: docker image load -i ${{ env.IMAGE_CACHE_DIR }}/image.tar
+
+    - name: Docker build
+      run: |
+        docker container ls
 
     - name: Wait middleware services
       run: docker-compose run --rm wait-middleware
@@ -181,4 +197,4 @@ jobs:
           -e REDIS_URL=redis://${{ env.REDIS_HOST }}:${{ env.REDIS_PORT }}/1 \
           -e DB_USER=${{ env.DB_USER }} \
           -e DB_PASSWORD=${{ env.DB_PASSWORD }} \
-          console bash -c "bin/bundle exec rubocop"
+          console bash -c "bin/bundle exec rubocop --parallel"

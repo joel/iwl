@@ -35,6 +35,7 @@ module ImagesFurry
         config.rails_semantic_logger.processing = true
         config.rails_semantic_logger.rendered   = true
       end
+
     end
   end
 end

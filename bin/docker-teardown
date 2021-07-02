@@ -47,3 +47,10 @@ do
     docker image rm ${image} 1> /dev/null
   fi
 done
+
+echo "Clean tmp dir" && \
+rm -rf tmp/* && \
+echo "Clean log dir" && \
+rm -rf log/* && \
+echo "Clean Local Storage" && \
+rm -rf storage/*

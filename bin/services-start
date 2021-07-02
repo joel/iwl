@@ -25,7 +25,9 @@ else
   echo "forwarding services...."
 fi
 
-./bin/redis-start "$@" & \
+# echo "ARGS: [$@]"
+
+./bin/redis-start "$@" && \
 ./bin/db-start "$@"
 
 docker container ls | grep ${SERVICE_NAME}-${PF_TARGET}-sidekiq 1> /dev/null

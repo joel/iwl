@@ -44,11 +44,6 @@ services:
 
   backend: &backend
     <<: *base
-    environment:
-      - DB_HOST=db
-      - REDIS_URL=redis://redis:6379/1
-      - BUNDLE_PATH=/bundle
-      - GEM_HOME=/bundle
     stdin_open: true
     tty: true
     volumes:

@@ -39,3 +39,11 @@ do
     docker volume rm ${volume} 1> /dev/null
   fi
 done
+
+docker network ls | grep ${DIR_NAME}_default 1> /dev/null
+if [[ $? = 1 ]]; then
+  echo "Network Removed!"
+else
+  echo "Removing Network"
+  docker network rm ${DIR_NAME}_default 1> /dev/null
+fi

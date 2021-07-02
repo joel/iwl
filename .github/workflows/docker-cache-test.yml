@@ -48,7 +48,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-${{ env.IMAGE_CACHE_KEY }}-${{ matrix.ruby }}-
 
-    - name: Docker build
+    - name: Docker Container List
       run: |
         docker container ls
 
@@ -62,7 +62,7 @@ jobs:
           --build-arg ARG_RUBYGEMS_VERSION=${{ env.ARG_RUBYGEMS_VERSION }} \
         base
 
-    - name: Docker build
+    - name: Docker Container List
       run: |
         docker container ls
 
@@ -93,7 +93,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-${{ env.IMAGE_CACHE_KEY }}-${{ matrix.ruby }}-
 
-    - name: Docker build
+    - name: Docker Container List
       run: |
         docker container ls
 
@@ -101,7 +101,7 @@ jobs:
       if: steps.cache-docker-image.outputs.cache-hit == 'true'
       run: docker image load -i ${{ env.IMAGE_CACHE_DIR }}/image.tar
 
-    - name: Docker build
+    - name: Docker Container List
       run: |
         docker container ls
 

@@ -48,11 +48,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-${{ env.IMAGE_CACHE_KEY }}-${{ matrix.ruby }}-
 
-    - name: Docker load
-      id: docker-load
-      if: steps.cache-docker-image.outputs.cache-hit == 'true'
-      run: docker image load -i ${{ env.IMAGE_CACHE_DIR }}/image.tar
-
     - name: Docker build
       run: |
         docker-compose build \

@@ -11,9 +11,10 @@ export DB_USER=root
 export DB_PASSWORD=db_password
 export DB_POOL=5
 
+export ARG_APP_PATH=/src
+
 export ARG_RUBY_VERSION=2.7.3
 export ARG_BUNDLER_VERSION=2.2.20
-export ARG_APP_PATH=/src
 export ARG_RUBYGEMS_VERSION=3.2.20
 
 export RAILS_LOG_TO_STDOUT=true

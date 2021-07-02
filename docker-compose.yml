@@ -4,7 +4,7 @@ services:
   db:
     image: mysql:5.7.33
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-db_password}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
     volumes:
       - db-data:/var/lib/mysql
 
@@ -48,7 +48,7 @@ services:
   wait-middleware: &wait-middleware
     <<: *base
     environment:
-      WAIT_HOSTS: db:3306, redis:6379, selenium:4444
+      WAIT_HOSTS: db:3306,redis:6379,selenium:4444
       WAIT_TIMEOUT: 90
       WAIT_HOST_CONNECT_TIMEOUT: 10
       WAIT_BEFORE: 5

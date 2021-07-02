@@ -21,7 +21,6 @@ function cmd() {
   if [[ -n $1 && $1 == '--publish' ]]
   then
     array+=("--publish ${DB_PUBLISHED_PORT}:3306")
-    echo "Forwarding port [${DB_PUBLISHED_PORT}[ to the host"
   fi
 
   array+=("mysql:5.7.33")
@@ -35,10 +34,15 @@ function cmd() {
   ${CMD}
 }
 
+if [[ -n $1 && $1 == '--publish' ]]
+then
+  echo "Forwarding port [${DB_PUBLISHED_PORT}] to the host"
+fi
+
 docker container ls | grep ${SERVICE_NAME}-db 1> /dev/null
 if [[ $? = 1 ]]; then
   echo "Starting DB... "
-  eval cmd $1
+  eval cmd $1 > /dev/null 2>&1
 else
   echo "DB Started!"
 fi

@@ -46,9 +46,6 @@ services:
     <<: *base
     stdin_open: true
     tty: true
-    volumes:
-      - ./:${ARG_APP_PATH}:cached
-      - rails-cache:${ARG_APP_PATH}/tmp/cache
     depends_on:
       - db
       - redis
@@ -59,5 +56,4 @@ services:
 
 volumes:
   db-data:
-  rails-cache:
   redis-data:

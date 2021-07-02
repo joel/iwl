@@ -14,8 +14,8 @@ class ResourceFinderTest < ActiveSupport::TestCase
   test "#behaveable_class" do
     params = ActionController::Parameters.new({ user_id: "1" })
     instance = klass.new(params)
-    klass, param = instance.send(:behaveable_class)
-    assert_equal User, klass
+    model_klass, param = instance.send(:behaveable_class)
+    assert_equal User, model_klass
     assert_equal "user_id", param
   end
 
